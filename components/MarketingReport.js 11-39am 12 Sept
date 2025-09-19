@@ -1,0 +1,301 @@
+// components/MarketingReport.js
+
+import React, { useState, useRef, useEffect } from 'react';
+import Image from 'next/image';
+import jsPDF from 'jspdf';
+import html2canvas from 'html2canvas';
+import MarketingRadarChart from './MarketingRadarChart';
+import TradeoffChart from './TradeoffChart';
+import ScoreBarChart from './ScoreBarChart';
+import MarketingChordDiagram from './MarketingChordDiagram';
+
+// --- Centralized Theme ---
+const theme = {
+    colors: {
+        primary: '#1D2951', // Deeper Navy
+        accent: '#4A90E2',  // Brighter Blue
+        accent2: '#F5A623', // Gold/Orange
+        success: '#50E3C2', // Teal
+        danger: '#D0021B',   // Red
+        text: '#333333',
+        lightText: '#555555',
+        background: '#FFFFFF',
+        lightBackground: '#F8F9FA',
+        borderColor: '#DEE2E6',
+    },
+    fonts: { heading: "'Helvetica Neue', 'Arial', sans-serif", body: "'Helvetica Neue', Arial, sans-serif" },
+};
+
+// --- Helper Components ---
+const Page = ({ children, className = '' }) => (
+    <div className={`report-page ${className}`} style={{
+        pageBreakAfter: 'always',
+        padding: '20mm 15mm 20mm 15mm', // A4 padding
+        backgroundColor: theme.colors.background,
+        minHeight: '297mm',
+        boxSizing: 'border-box',
+        display: 'flex',
+        flexDirection: 'column',
+    }}>
+        {children}
+    </div>
+);
+
+const SectionTitle = ({ children }) => (
+    <h2 style={{ fontFamily: theme.fonts.heading, fontSize: '2.2em', color: theme.colors.primary, borderBottom: `3px solid ${theme.colors.accent}`, paddingBottom: '10px', marginBottom: '25px' }}>{children}</h2>
+);
+
+const SectionIntro = ({ children }) => (
+    <p style={{ fontFamily: theme.fonts.body, fontSize: '1.1em', color: theme.colors.lightText, lineHeight: '1.6', backgroundColor: theme.colors.lightBackground, padding: '20px', borderLeft: `4px solid ${theme.colors.accent}` }}>
+        {children}
+    </p>
+);
+
+// --- NEW Helper for MCQ Cluster Analysis ---
+const McqClusterAnalysis = ({ title, analysis, score, benchmarkScore }) => (
+    <div>
+        <ScoreBarChart score={score} benchmarkScore={benchmarkScore} />
+        <div style={{ borderTop: `1px solid ${theme.colors.borderColor}`, paddingTop: '20px' }}>
+            <h4 style={{fontFamily: theme.fonts.heading, color: theme.colors.primary}}>Diagnostic Analysis</h4>
+            <p style={{lineHeight: 1.7}}>{analysis.overallInference}</p>
+            {/* You can add strengths/improvements back here if desired */}
+        </div>
+    </div>
+);
+
+// In components/MarketingReport.js, use this complete object
+
+const tradeoffLabels = {
+    strategicJudgment: { 
+        left: 'Performance Focus', 
+        right: 'Brand Focus', 
+        labels: { 
+            1: 'Brand vs Perf.', 3: 'Penetration vs. Loyalty', 5: 'Distinct vs. Differentiate', 7: 'Standard vs. Local', 9: 'Innovation vs. Consistency'
+        } 
+    },
+    brandCommAcumen: { 
+        left: 'Strategic Control', 
+        right: 'Creative Authenticity', 
+        labels: { 
+            11: 'Control vs. Authenticity', 13: 'Consistency vs. Customization', 15: 'Emotional vs. Rational', 17: 'Mass vs. Niche'
+        } 
+    },
+    commercialAcumen: { 
+        left: 'Profit Optimization', 
+        right: 'Market Accessibility', 
+        labels: { 
+            19: 'Value vs. Affordability', 21: 'Premium vs. Mass-market', 23: 'Dynamic vs. Trust', 25: 'Promotion vs. Equity', 27: 'Cost vs. Investment'
+        } 
+    },
+    leadershipTeamOrientation: { 
+        left: 'Structure & Discipline', 
+        right: 'Flexibility & Agility', 
+        labels: { 
+            29: 'Specialists vs. Generalists', 31: 'In-house vs. Outsource', 33: 'Speed vs. Craft', 35: 'Centralized vs. Decentralized', 37: 'Discipline vs. Freedom', 39: 'Retention vs. Renewal', 41: 'KPIs vs. Development', 43: 'Collaboration vs. Accountability', 45: 'Structure vs. Agility', 47: 'Recognition vs. Resilience'
+        } 
+    },
+    resourceAllocationDiscipline: { 
+        left: 'Efficiency & Proven Channels', 
+        right: 'Effectiveness & Experimentation', 
+        labels: { 
+            49: 'Brand vs. Performance', 51: 'Acquisition vs. Retention', 53: 'Digital vs. Traditional', 55: 'Global vs. Local', 57: 'Proven vs. Experiment', 59: 'Paid vs. Owned/Earned', 61: 'Always-on vs. Burst', 63: 'Cost Cut vs. Brand Defense', 65: 'Incremental vs. Zero-Based', 67: 'Efficiency vs. Effectiveness'
+        } 
+    },
+    commercialGrowthOrientation: { 
+        left: 'Short-term Revenue', 
+        right: 'Long-term Value', 
+        labels: { 
+            69: 'Activation vs. Brand Building', 71: 'Targets vs. CX', 73: 'Sales Enable vs. Market Dev', 75: 'Quarterly vs. Market Share', 77: 'Sales vs. Innovation', 79: 'Conversion vs. Trust'
+        } 
+    }
+};
+
+// --- Main Report Component ---
+const MarketingReport = ({ report }) => {
+    const [isDownloading, setIsDownloading] = useState(false);
+    const [logoBase64, setLogoBase64] = useState(null);
+    const reportContentRef = useRef(null);
+
+    useEffect(() => {
+        // Fetches the logo and converts it to Base64 for embedding in the PDF
+        const fetchLogo = async () => {
+            try {
+                const response = await fetch('/logo.png');
+                const blob = await response.blob();
+                const reader = new FileReader();
+                reader.onload = () => setLogoBase64(reader.result);
+                reader.readAsDataURL(blob);
+            } catch (error) {
+                console.error("Error loading logo for PDF.", error);
+            }
+        };
+        fetchLogo();
+    }, []);
+
+    const handleDownloadPDF = async () => {
+        const input = reportContentRef.current;
+        if (!input || !logoBase64) {
+            alert("Report content is not ready. Please wait a moment.");
+            return;
+        }
+
+        setIsDownloading(true);
+        const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+        const pdfWidth = pdf.internal.pageSize.getWidth();
+        const pdfHeight = pdf.internal.pageSize.getHeight();
+        const reportPages = input.querySelectorAll('.report-page');
+
+        for (let i = 0; i < reportPages.length; i++) {
+            if (i > 0) pdf.addPage();
+            
+            const canvas = await html2canvas(reportPages[i], { scale: 2, useCORS: true });
+            const imgData = canvas.toDataURL('image/png');
+            
+            pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight, undefined, 'FAST');
+
+            // --- NEW: Custom Footer from PDF instructions ---
+            const footerText = "The Marketing Influence Quotient™  •  Accelerating Success  •  www.leadershipaccel.com";
+            pdf.setFontSize(8);
+            pdf.setTextColor(theme.colors.lightText);
+            pdf.text(footerText, pdfWidth / 2, pdfHeight - 10, { align: 'center' });
+        }
+
+        pdf.save("Marketing-Influence-Quotient-Report.pdf");
+        setIsDownloading(false);
+    };
+
+    if (!report) {
+        return <Page><h2>Generating Your Report...</h2></Page>;
+    }
+
+    const { userInfo, scoredResults, executiveSummary, detailedAnalysis } = report;
+
+    // --- ADD THIS NEW BLOCK TO PREPARE THE CHART DATA ---
+    const chartData = scoredResults?.dimensionScores ? 
+        Object.keys(scoredResults.dimensionScores).map(key => {
+            let label = key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase());
+            // Split long labels into an array of strings for multi-line display
+            if (label.length > 25) {
+                const words = label.split(' ');
+                const midpoint = Math.ceil(words.length / 2);
+                label = [words.slice(0, midpoint).join(' '), words.slice(midpoint).join(' ')];
+            }
+            return {
+                dimension: label,
+                score: parseFloat(scoredResults.dimensionScores[key].toFixed(1))
+            };
+        }) 
+        : [];
+    // --------------------------------------------------------
+
+    // VVVV PASTE THE NEW CONSTANT FOR THE CHORD DIAGRAM HERE VVVV
+    const chordData = {
+        matrix: scoredResults?.chordMatrix,
+        labels: ['Strategic Acumen', 'Commercial Rigor', 'Brand Craft', 'Execution & Leadership'],
+        colors: ['#1D2951', '#4A90E2', '#50E3C2', '#F5A623', '#D0021B'] // Using our premium theme colors
+    };
+    // ^^^^ END OF THE NEW BLOCK ^^^^
+
+    return (
+        <div style={{ fontFamily: theme.fonts.body, color: theme.colors.text, maxWidth: '900px', margin: '0 auto', backgroundColor: '#e9ecef' }}>
+            <div style={{ textAlign: 'center', padding: '20px', backgroundColor: 'white', borderBottom: '1px solid #dee2e6' }}>
+                <p>Your personalized report is ready.</p>
+                <button
+                    onClick={handleDownloadPDF}
+                    disabled={isDownloading || !logoBase64}
+                    style={{ padding: '12px 25px', fontSize: '1.1em', cursor: 'pointer', backgroundColor: theme.colors.accent, color: 'white', border: 'none', borderRadius: '5px' }}
+                >
+                    {isDownloading ? 'Generating PDF...' : 'Download Report as PDF'}
+                </button>
+            </div>
+
+            <div ref={reportContentRef}>
+                {/* Page 1: Cover Page */}
+                <Page className="cover-page">
+                    <div style={{ flexGrow: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', textAlign: 'center' }}>
+                        <Image src="/logo.png" alt="Leadership Accelerator Logo" width={240} height={96} />
+                        <h1 style={{ fontFamily: theme.fonts.heading, fontSize: '3em', color: theme.colors.primary, marginTop: '40px', marginBottom: '10px' }}>The Marketing Influence Quotient™</h1>
+                        <p style={{ fontSize: '1.5em', color: theme.colors.accent }}>Accelerating Success</p>
+                        <p style={{ fontSize: '1.2em', color: theme.colors.text, marginTop: '80px' }}>Personalized Report For:</p>
+                        <p style={{ fontSize: '1.8em', fontFamily: theme.fonts.heading, color: theme.colors.primary }}>{userInfo?.name || 'Valued Professional'}</p>
+                    </div>
+                </Page>
+                
+                {/* Pages 2-3: Static "About" content from PDF */}
+                {/* ... Add static content pages for "About The Leadership Accelerator" and "About MIQ" here ... */}
+
+                {/* Page 4: Executive Summary */}
+                <Page>
+                    <SectionTitle>Executive Summary</SectionTitle>
+                    {executiveSummary && <>
+                        <h3 style={{color: theme.colors.primary}}>Composite Score</h3>
+                        <SectionIntro>{executiveSummary.compositeScoreText}</SectionIntro>
+                        <h3 style={{color: theme.colors.primary}}>Top Three Strengths</h3>
+                        <SectionIntro>{executiveSummary.strengthsText}</SectionIntro>
+                        <h3 style={{color: theme.colors.primary}}>Top Three Development Priorities</h3>
+                        <SectionIntro>{executiveSummary.prioritiesText}</SectionIntro>
+                        <h3 style={{color: theme.colors.primary}}>Career Impact Statement</h3>
+                        <SectionIntro>{executiveSummary.careerImpactStatement}</SectionIntro>
+                    </>}
+                </Page>
+
+                {/* Page 5: Key Findings at a Glance */}
+                <Page>
+                    <SectionTitle>Key Findings at a Glance</SectionTitle>
+                    <SectionIntro>
+                       This section provides a visual summary of your performance. The composite score is benchmarked as a percentile rank, and the radar chart presents your results across core dimensions, offering an integrated view of your capability profile.
+                    </SectionIntro>
+                    {scoredResults && (
+                        <div style={{textAlign: 'center', margin: '30px 0'}}>
+                            <p style={{fontSize: '1.2em'}}>Your Composite Score:</p>
+                            <p style={{fontSize: '4em', fontWeight: 'bold', color: theme.colors.primary, margin: '10px 0'}}>{scoredResults.percentage.toFixed(1)}%</p>
+                            <p style={{fontSize: '1.2em'}}>Percentile Rank: {scoredResults.percentile || 'N/A'}</p>
+                        </div>
+                    )}
+                    {/* We will need to feed the radar chart with dimension scores from the analysis */}
+<div style={{ width: '100%', maxWidth: '700px', height: '700px', margin: '20px auto' }}>
+    <MarketingChordDiagram matrixData={chordData} />
+</div>
+                </Page>
+                
+                {/* ... Add static "Methodology" pages here ... */}
+
+                {/* --- DETAILED ANALYSIS PAGES --- */}
+{detailedAnalysis && Object.entries(detailedAnalysis).map(([key, value]) => {
+        const isTradeoff = tradeoffLabels[key];
+        const isMcq = typeof value === 'object' && value.overallInference;
+
+        return (
+            <Page key={key}>
+                <SectionTitle>{key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())}</SectionTitle>
+                
+                {isTradeoff && (
+                    <div style={{ display: 'flex', justifyContent: 'center' }}>
+                        <TradeoffChart 
+                            dataPairs={scoredResults.pairs.filter(p => tradeoffLabels[key].labels[p.qA])}
+                            labels={tradeoffLabels[key]}
+                        />
+                    </div>
+                )}
+                
+                {isMcq && (
+                    <McqClusterAnalysis 
+                        title="Diagnostic Analysis" 
+                        analysis={value}
+                        score={scoredResults.dimensionScores[key]}
+                        benchmarkScore={75} // Placeholder for industry data
+                    />
+                )}
+                
+                {typeof value === 'object' && value.report && (
+                    <div style={{ whiteSpace: 'pre-wrap', lineHeight: '1.7', fontSize: '1.1em' }}>{value.report}</div>
+                )}
+            </Page>
+        );
+    })}
+            </div>
+        </div>
+    );
+};
+
+export default MarketingReport;

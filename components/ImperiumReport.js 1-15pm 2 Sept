@@ -1,0 +1,71 @@
+// components/ImperiumReport.js
+
+import React from 'react';
+import Image from 'next/image';
+import { ImperiumRadarChart } from './ReportCharts'; // We will create this in the next step
+
+// Re-using your excellent helper components for consistent styling
+const SectionTitle = ({ children }) => <h2 style={{ fontSize: '2em', color: '#003366', borderBottom: '2px solid #0056b3', paddingBottom: '10px', marginBottom: '20px' }}>{children}</h2>;
+const Page = ({ children }) => <div style={{ pageBreakAfter: 'always', padding: '40px', backgroundColor: 'white' }}>{children}</div>;
+
+const ImperiumReport = React.forwardRef(({ report }, ref) => {
+    if (!report) {
+        return <Page><h2>Generating Report... Please Wait.</h2></Page>;
+    }
+
+    const { powerQuadrant, breakthroughZone, radarChartData, categoryAnalysis, overallProfile } = report;
+
+    return (
+        <div ref={ref} style={{ fontFamily: 'sans-serif', color: '#333', maxWidth: '900px', margin: '0 auto', backgroundColor: 'white' }}>
+
+            <Page>
+                <Image src="/logo.png" alt="Company Logo" width={200} height={80} />
+                <h1 style={{ marginTop: '30px', color: '#003366' }}>The Imperium Leadership Index™</h1>
+                <h2 style={{ fontStyle: 'italic', color: '#555' }}>Your Personalized Leadership Report</h2>
+                <p style={{ lineHeight: '1.6', marginTop: '20px' }}>Congratulations on completing this in-depth assessment. This report is a mirror reflecting how you navigate the core tensions of modern leadership. Use it not as a final verdict, but as a starting point for reflection, dialogue, and intentional growth.</p>
+            </Page>
+
+            {/* The Main Visual Summary: The Radar Chart */}
+            <Page>
+                <SectionTitle>Your Leadership Profile at a Glance</SectionTitle>
+                <p>This chart provides a holistic view of your leadership tendencies across the five core dimensions of the Imperium Index. It visualizes your unique balance of strategic, communicative, and decisive capabilities.</p>
+                <div style={{ height: '500px', maxWidth: '600px', margin: '40px auto' }}>
+                    {radarChartData && <ImperiumRadarChart radarData={radarChartData} />}
+                </div>
+            </Page>
+
+            {/* The Power Quadrant & Breakthrough Zone */}
+             <Page>
+                <SectionTitle>The Power Quadrant™</SectionTitle>
+                <p>These are your standout strengths, the foundational pillars of your leadership presence, as identified from your responses.</p>
+                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', marginTop: '20px' }}>
+                    {powerQuadrant?.map((item, index) => (
+                        <div key={index} style={{ border: '1px solid #ddd', padding: '15px', borderRadius: '8px' }}>
+                            <h3>{item.name} - ({item.score}/10)</h3>
+                            <p>{item.definition}</p>
+                        </div>
+                    ))}
+                </div>
+
+                <br/><br/>
+
+                <SectionTitle>The Breakthrough Zone™</SectionTitle>
+                <p>These are the key areas where focused growth can unlock your next level of leadership effectiveness and impact.</p>
+                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', marginTop: '20px' }}>
+                    {breakthroughZone?.map((item, index) => (
+                        <div key={index} style={{ border: '1px solid #ddd', padding: '15px', borderRadius: '8px' }}>
+                            <h3>{item.name} - ({item.score}/10)</h3>
+                            <p>{item.definition}</p>
+                        </div>
+                    ))}
+                </div>
+            </Page>
+
+            {/* Detailed Category Analysis would go on subsequent pages */}
+
+        </div>
+    );
+});
+
+ImperiumReport.displayName = 'ImperiumReport';
+export default ImperiumReport;

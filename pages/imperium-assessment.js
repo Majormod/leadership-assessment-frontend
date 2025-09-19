@@ -1,0 +1,174 @@
+// pages/imperium-assessment.js
+
+import { useState, useEffect } from 'react';
+import Image from 'next/image';
+import LikertStatement from '../components/LikertStatement';
+import ImperiumReport from '../components/ImperiumReport';
+import jsPDF from 'jspdf';
+import html2canvas from 'html2canvas';
+
+const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
+
+const ImperiumAssessmentPage = () => {
+    const [assessmentState, setAssessmentState] = useState('loading');
+    const [arenas, setArenas] = useState([]);
+    const [answers, setAnswers] = useState({});
+    const [jobId, setJobId] = useState(null);
+    const [report, setReport] = useState(null);
+    
+    const totalQuestions = arenas.reduce((count, arena) => count + arena.statements.length, 0);
+    const answeredQuestions = Object.keys(answers).length;
+    const isSubmitDisabled = answeredQuestions < totalQuestions;
+
+    useEffect(() => {
+        const fetchArenas = async () => {
+            try {
+                const res = await fetch(`${apiUrl}/api/imperium/statements`);
+                if (!res.ok) throw new Error(`Server responded with ${res.status}`);
+                const data = await res.json();
+                setArenas(data);
+                setAssessmentState('in_progress');
+            } catch (error) {
+                console.error("Failed to fetch arenas:", error);
+                setAssessmentState('error');
+            }
+        };
+        fetchArenas();
+    }, []);
+
+    useEffect(() => {
+        if (!jobId) return;
+        const intervalId = setInterval(async () => {
+            try {
+                const res = await fetch(`${apiUrl}/api/imperium/status/${jobId}`);
+                if (!res.ok) throw new Error(`Status check failed`);
+                const data = await res.json();
+                if (data.status === 'completed') {
+                    clearInterval(intervalId);
+                    console.log("RECEIVED REPORT:", data.report); // <--- Add this back
+                    setReport(data.report);
+                    setAssessmentState('completed');
+                } else if (data.status === 'failed') {
+                    clearInterval(intervalId);
+                    setAssessmentState('error');
+                }
+            } catch (error) {
+                console.error("Error polling for report status:", error);
+                setAssessmentState('error');
+                clearInterval(intervalId);
+            }
+        }, 5000);
+        return () => clearInterval(intervalId);
+    }, [jobId]);
+
+    const handleAnswerSelect = (statementId, value) => {
+        setAnswers(prevAnswers => ({ ...prevAnswers, [statementId]: value }));
+    };
+
+    // --- STEP 1: ADD THIS NEW FUNCTION ---
+    // This function handles the logic for the auto-answer button.
+    const handleAutoAnswer = () => {
+        if (arenas.length === 0) {
+            console.log("Arenas not loaded yet, cannot auto-answer.");
+            return;
+        }
+
+        const newAnswers = {};
+        const allStatements = arenas.flatMap(arena => arena.statements);
+
+        allStatements.forEach(statement => {
+            // Generate a random integer from 1 to 6
+            const randomValue = Math.floor(Math.random() * 6) + 1;
+            newAnswers[statement.id] = randomValue;
+        });
+
+        console.log(`DEV: Auto-answering ${Object.keys(newAnswers).length} questions.`);
+        setAnswers(newAnswers);
+    };
+
+    const handleSubmit = async () => {
+        setAssessmentState('evaluating');
+        try {
+            const res = await fetch(`${apiUrl}/api/imperium/submit`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ answers })
+            });
+            if (!res.ok) throw new Error(`Submit request failed`);
+            const data = await res.json();
+            if (data.jobId) {
+                setJobId(data.jobId);
+            } else {
+                throw new Error("Did not receive a job ID from the server.");
+            }
+        } catch (error) {
+            console.error("Failed to submit assessment:", error);
+            setAssessmentState('error');
+        }
+    };
+    
+    if (assessmentState === 'loading') {
+        return <div style={{ padding: '40px', textAlign: 'center' }}>Loading Assessment...</div>;
+    }
+    if (assessmentState === 'error') {
+        return <div style={{ padding: '40px', textAlign: 'center', color: 'red' }}><h2>An Error Occurred</h2><p>Could not load the assessment or generate the report. Please refresh and try again.</p></div>;
+    }
+    if (assessmentState === 'evaluating') {
+        return (
+            <div style={{ padding: '20px', textAlign: 'center', height: '100vh', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+                <h2>Thank you. Your submission is being analyzed.</h2>
+                <p>Your personalized Imperium Leadership Index™ report is being generated by our AI. This may take a few moments.</p>
+                <p>Please keep this page open.</p>
+            </div>
+        );
+    }
+    if (assessmentState === 'completed' && report) {
+        return <ImperiumReport report={report} />;
+    }
+
+    return (
+        <div style={{ fontFamily: 'Arial, sans-serif', maxWidth: '900px', margin: 'auto', padding: '20px', backgroundColor: 'white', color: 'black' }}>
+            <header style={{ textAlign: 'center', borderBottom: '1px solid #eee', paddingBottom: '20px', marginBottom: '30px' }}>
+                <Image src="/logo.png" alt="Company Logo" width={180} height={72} />
+                <h1 style={{ color: '#003366', marginTop: '10px' }}>The Imperium Leadership Index™</h1>
+                <p style={{ fontStyle: 'italic', color: '#555' }}>Please respond to the following statements based on your leadership approach.</p>
+            </header>
+            
+            <main>
+                {arenas.map((arena, index) => (
+                    <div key={index} style={{ marginBottom: '50px', border: '1px solid #eee', padding: '20px', borderRadius: '8px' }}>
+                        <h2 style={{ color: '#003366' }}>{arena.arenaTitle}</h2>
+                        <p style={{ fontStyle: 'italic', color: '#555', lineHeight: '1.6' }}>{arena.arenaDescription}</p>
+                        <hr style={{ margin: '20px 0' }} />
+                        {arena.statements.map(statement => (
+                            <LikertStatement 
+                                key={statement.id} 
+                                statement={statement} 
+                                currentAnswer={answers[statement.id]} 
+                                onAnswerSelect={handleAnswerSelect} 
+                            />
+                        ))}
+                    </div>
+                ))}
+            </main>
+
+            <footer style={{ position: 'sticky', bottom: 0, backgroundColor: 'rgba(255, 255, 255, 0.95)', padding: '20px', borderTop: '1px solid #eee', textAlign: 'center', boxShadow: '0 -2px 10px rgba(0,0,0,0.1)' }}>
+                <p style={{ margin: '0 0 15px 0', fontWeight: 'bold' }}>Progress: {answeredQuestions} / {totalQuestions}</p>
+                
+                {/* --- STEP 2: ADD THIS NEW BUTTON --- */}
+                {/* This button will only appear in development mode */}
+                {process.env.NODE_ENV === 'development' && (
+                    <button onClick={handleAutoAnswer} style={{ padding: '10px 20px', fontSize: '1em', cursor: 'pointer', backgroundColor: '#ffc107', color: 'black', border: 'none', borderRadius: '5px', marginRight: '15px' }}>
+                        Dev: Auto-Answer All
+                    </button>
+                )}
+
+                <button onClick={handleSubmit} disabled={isSubmitDisabled} style={{ padding: '15px 40px', fontSize: '1.2em', fontWeight: 'bold', cursor: isSubmitDisabled ? 'not-allowed' : 'pointer', backgroundColor: isSubmitDisabled ? '#ccc' : '#28a745', color: 'white', border: 'none', borderRadius: '5px', opacity: isSubmitDisabled ? 0.6 : 1 }}>
+                    Submit for Analysis
+                </button>
+            </footer>
+        </div>
+    );
+};
+
+export default ImperiumAssessmentPage;

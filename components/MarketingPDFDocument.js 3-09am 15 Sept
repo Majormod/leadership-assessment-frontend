@@ -1,0 +1,209 @@
+// components/MarketingPDFDocument.js
+
+import React from 'react';
+import { Page, Text, View, Document, StyleSheet, Image, Font } from '@react-pdf/renderer';
+
+// Register fonts to support bold styling in the PDF
+Font.register({
+    family: 'Roboto',
+    fonts: [
+        { src: '/fonts/Roboto-Regular.ttf', fontWeight: 400, fontStyle: 'normal' },
+        { src: '/fonts/Roboto-Bold.ttf', fontWeight: 700, fontStyle: 'normal' },
+        { src: '/fonts/Roboto-Italic.ttf', fontWeight: 400, fontStyle: 'italic' },
+        { src: '/fonts/Roboto-BoldItalic.ttf', fontWeight: 700, fontStyle: 'italic' },
+    ]
+});
+
+// Defines all styles for the PDF for a consistent, professional look
+// In components/MarketingPDFDocument.js
+
+const styles = StyleSheet.create({
+    page: {
+        paddingTop: '15mm',
+        paddingBottom: '20mm',
+        paddingHorizontal: '15mm',
+        fontFamily: 'Roboto',
+        fontSize: 10,
+        lineHeight: 1.5,
+        color: '#333333',
+    },
+    centerPage: {
+        display: 'flex',
+        flexDirection: 'column',
+        justifyContent: 'center',
+        alignItems: 'center',
+        height: '100%',
+    },
+    logo: {
+        width: 180,
+        marginBottom: 15,
+    },
+    h1: { 
+        fontSize: 28, 
+        fontWeight: 700, // Use 700 for bold
+        color: '#1D2951', 
+        marginBottom: 15, 
+        textAlign: 'center' 
+    },
+    h2: { 
+        fontSize: 18, 
+        fontWeight: 700, // Use 700 for bold
+        color: '#1D2951', 
+        borderBottom: 2, 
+        borderColor: '#4A90E2', 
+        paddingBottom: 8,
+        marginBottom: 20,
+        alignSelf: 'flex-start'
+    },
+    h3: { 
+        fontSize: 12, 
+        fontWeight: 700, // Use 700 for bold
+        color: '#1D2951', 
+        marginBottom: 5 
+    },
+    text: { 
+        marginBottom: 10, 
+        fontWeight: 400 // Explicitly set normal weight
+    },
+    italic: { 
+        fontStyle: 'italic' 
+    },
+    coverPageText: {
+        fontFamily: 'Roboto',
+        fontSize: 12,
+        marginTop: 80,
+        fontWeight: 400, // Use 400 for normal
+    },
+    coverPageName: {
+        fontFamily: 'Roboto',
+        fontWeight: 700, // Use 700 for bold
+        fontSize: 20,
+        color: '#1D2951',
+        marginTop: 5,
+    },
+    analysisBox: {
+        marginTop: 15,
+        padding: 15,
+        backgroundColor: '#F8F9FA',
+        border: '1px solid #DEE2E6',
+        borderRadius: 5,
+        marginBottom: 15,
+    },
+    chartImage: {
+        width: '90%',
+        marginTop: 10,
+        marginBottom: 15,
+        alignSelf: 'center',
+    },
+    footer: {
+        position: 'absolute',
+        bottom: '10mm',
+        left: '15mm',
+        right: '15mm',
+        textAlign: 'center',
+        color: 'grey',
+        fontSize: 8,
+    },
+});
+
+const MarketingPDFDocument = ({ report, logoDataURI, chartImages }) => {
+    if (!report) return <Document />;
+
+    const { executiveSummary, detailedAnalysis, reportStructureData, executiveSummaryDescriptions } = report;
+
+    const renderLegend = (value, entry) => {
+    return (
+        <span style={{ 
+            color: '#555555',
+            fontSize: '14px',
+            textShadow: '1px 1px 2px rgba(0,0,0,0.1)',
+            marginLeft: '4px',
+            marginRight: '10px'
+        }}>
+            {value}
+        </span>
+    );
+};
+
+    return (
+        <Document>
+            {/* Cover Page */}
+            <Page size="A4" style={styles.page}>
+                <View style={styles.centerPage}>
+                    {logoDataURI && <Image style={styles.logo} src={logoDataURI} />}
+                    <Text style={styles.h1}>The Marketing Influence Quotient™</Text>
+                    <Text style={{ color: '#4A90E2', fontSize: 14 }}>Accelerating Success</Text>
+<Text style={styles.coverPageText}>Personalized Report For:</Text>
+<Text style={styles.coverPageName}>{report.userInfo?.name || 'Valued Professional'}</Text>
+                </View>
+                <Text style={styles.footer} fixed>
+                    The Marketing Influence Quotient™ • Accelerating Success • www.leadershipaccel.com
+                </Text>
+            </Page>
+
+            {/* Executive Summary Page */}
+            <Page size="A4" style={styles.page}>
+                 <Text style={styles.h2}>Executive Summary</Text>
+                 {Object.entries(executiveSummaryDescriptions).map(([key, value]) => (
+                     <View key={key} wrap={false}>
+                        <Text style={styles.h3}>{value.title}</Text>
+                        <Text style={{...styles.text, ...styles.italic}}>{value.description}</Text>
+                        <Text style={{...styles.analysisBox, padding: 10}}>{executiveSummary[key]}</Text>
+                     </View>
+                 ))}
+                 <Text style={styles.footer} fixed>
+                    The Marketing Influence Quotient™ • Accelerating Success • www.leadershipaccel.com
+                </Text>
+            </Page>
+
+            {/* Detailed Analysis Pages */}
+            {Object.keys(reportStructureData).map((key) => {
+                 const staticData = reportStructureData[key];
+                 const aiAnalysis = detailedAnalysis[key];
+                 if (!staticData || !aiAnalysis) return null;
+
+                 return (
+                    <Page key={key} size="A4" style={styles.page} wrap>
+                        <Text style={styles.h2}>{staticData.title}</Text>
+                        <Text style={{ ...styles.text, ...styles.italic }}>{staticData.mainDescription}</Text>
+                        
+                        <View style={styles.analysisBox}>
+                            <Text style={{ ...styles.h3, textAlign: 'center' }}>Your Personalized Analysis</Text>
+                            
+                            {chartImages && chartImages[key] &&
+                                <Image style={styles.chartImage} src={chartImages[key]} />
+                            }
+                            
+                            <View>
+                                <Text style={styles.h3}>Diagnostic Review</Text>
+                                <Text style={styles.text}>{aiAnalysis.diagnosticReview}</Text>
+
+                                <Text style={styles.h3}>Benchmark Comparison</Text>
+                                <Text style={styles.text}>{aiAnalysis.benchmarkComparison}</Text>
+                                
+                                <Text style={styles.h3}>Career Implications</Text>
+                                <Text style={styles.text}>{aiAnalysis.careerImplications}</Text>
+                            </View>
+                        </View>
+                        <Text style={styles.footer} fixed>
+                            The Marketing Influence Quotient™ • Accelerating Success • www.leadershipaccel.com
+                        </Text>
+                    </Page>
+                 );
+            })}
+
+            {/* Final Logo Page */}
+            <Page size="A4" style={styles.page}>
+                <View style={styles.centerPage}>
+                    {logoDataURI && <Image style={styles.logo} src={logoDataURI} />}
+                    <Text style={{ color: '#4A90E2', fontSize: 20 }}>Accelerating Success</Text>
+                </View>
+                <Text style={styles.footer} fixed>
+                    The Marketing Influence Quotient™ • Accelerating Success • www.leadershipaccel.com
+                </Text>
+            </Page>
+        </Document>
+    );
+};
+
+export default MarketingPDFDocument;

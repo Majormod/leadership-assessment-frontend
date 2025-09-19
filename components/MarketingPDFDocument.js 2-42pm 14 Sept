@@ -1,0 +1,132 @@
+// components/MarketingPDFDocument.js
+import React from 'react';
+import { Page, Text, View, Document, StyleSheet, Image, Font } from '@react-pdf/renderer';
+
+// Note: @react-pdf/renderer doesn't support all CSS. It uses a subset via Flexbox.
+// We are defining fonts to support bold/italic styles.
+Font.register({
+    family: 'Helvetica',
+    fonts: [
+        { src: `https://fonts.gstatic.com/s/oswald/v13/Y_TKV6o8WovbUd3m_X9aAA.ttf`, fontWeight: 'normal' },
+        { src: `https://fonts.gstatic.com/s/oswald/v13/bH7276GfdCjMjApa_dkG6w.ttf`, fontWeight: 'bold' },
+    ]
+});
+
+const styles = StyleSheet.create({
+    page: {
+        padding: '15mm',
+        fontFamily: 'Helvetica',
+        fontSize: 11,
+        lineHeight: 1.5,
+        color: '#333',
+    },
+    centerPage: {
+        display: 'flex',
+        flexDirection: 'column',
+        justifyContent: 'center',
+        alignItems: 'center',
+        height: '100%',
+    },
+    logo: {
+        width: 200,
+        marginBottom: 20,
+    },
+    h1: { fontSize: 32, fontWeight: 'bold', color: '#1D2951', marginBottom: 10, textAlign: 'center' },
+    h2: { fontSize: 24, fontWeight: 'bold', color: '#1D2951', borderBottom: '2px solid #4A90E2', paddingBottom: 6, marginBottom: 20 },
+    h3: { fontSize: 14, fontWeight: 'bold', color: '#1D2951', marginBottom: 10 },
+    text: { marginBottom: 10 },
+    italic: { fontStyle: 'italic', color: '#555' },
+    analysisBox: {
+        marginTop: 20,
+        padding: 15,
+        backgroundColor: '#F8F9FA',
+        border: '1px solid #DEE2E6',
+        borderRadius: 5,
+    },
+    // This 'wrap' property is the key to preventing content from being cut off.
+    analysisSection: {
+        marginBottom: 20,
+        breakInside: 'avoid', // Tries to prevent breaking this view across pages
+    },
+});
+
+// This is your new PDF component
+const MarketingPDFDocument = ({ report }) => {
+    if (!report) return <Document><Page><Text>Loading...</Text></Page></Document>;
+
+    const { scoredResults, executiveSummary, detailedAnalysis } = report;
+
+    return (
+        <Document>
+            {/* Cover Page */}
+            <Page size="A4" style={styles.page}>
+                <View style={styles.centerPage}>
+                    {/* Note: You need a full URL for images, or to load them as a Buffer */}
+                    {/* <Image style={styles.logo} src="/logo.png" /> */}
+                    <Text style={styles.h1}>The Marketing Influence Quotient™</Text>
+                    <Text style={{ ...styles.text, color: '#4A90E2' }}>Accelerating Success</Text>
+                    <Text style={{ ...styles.text, marginTop: 60 }}>Personalized Report For:</Text>
+                    <Text style={{ ...styles.h2, borderBottom: 0 }}>{report.userInfo?.name || 'Valued Professional'}</Text>
+                </View>
+            </Page>
+
+            {/* Static Content Pages (About, Assessment Details, etc.) */}
+            {/* Add more pages here for your static intro text if desired */}
+            
+            {/* Executive Summary Page */}
+            <Page size="A4" style={styles.page}>
+                 <Text style={styles.h2}>Executive Summary</Text>
+                 {Object.entries(report.executiveSummaryDescriptions).map(([key, value]) => (
+                     <View key={key} style={styles.analysisSection} wrap={false}>
+                        <Text style={styles.h3}>{value.title}</Text>
+                        <Text style={{...styles.text, ...styles.italic}}>{value.description}</Text>
+                        <Text style={{...styles.analysisBox, padding: 10}}>{executiveSummary[key]}</Text>
+                     </View>
+                 ))}
+            </Page>
+
+            {/* Detailed Analysis Pages (with automatic page breaks) */}
+            {Object.keys(report.reportStructureData).map((key) => {
+                 const staticData = report.reportStructureData[key];
+                 const aiAnalysis = detailedAnalysis[key];
+                 if (!staticData || !aiAnalysis) return null;
+
+                 return (
+                    <Page key={key} size="A4" style={styles.page}>
+                        <Text style={styles.h2}>{staticData.title}</Text>
+                        <Text style={{ ...styles.text, ...styles.italic }}>{staticData.mainDescription}</Text>
+                        {/* Add other static text here if needed */}
+                        
+                        {/* Note: Rendering charts in @react-pdf/renderer is complex. */}
+                        {/* For now, we are skipping them in the PDF for speed and simplicity. */}
+                        {/* The best method is to render charts to an image on the server and pass the image URL. */}
+
+                        <View style={styles.analysisBox}>
+                            <Text style={{ ...styles.h3, textAlign: 'center' }}>Your Personalized Analysis</Text>
+                            <View style={{marginTop: 20}}>
+                                <Text style={styles.h3}>Diagnostic Review</Text>
+                                <Text style={styles.text}>{aiAnalysis.diagnosticReview}</Text>
+
+                                <Text style={styles.h3}>Benchmark Comparison</Text>
+                                <Text style={styles.text}>{aiAnalysis.benchmarkComparison}</Text>
+                                
+                                <Text style={styles.h3}>Career Implications</Text>
+                                <Text style={styles.text}>{aiAnalysis.careerImplications}</Text>
+                            </View>
+                        </View>
+                    </Page>
+                 );
+            })}
+
+            {/* Final Logo Page */}
+            <Page size="A4" style={styles.page}>
+                <View style={styles.centerPage}>
+                    {/* <Image style={styles.logo} src="/logo.png" /> */}
+                     <Text style={{ ...styles.text, color: '#4A90E2', fontSize: 20 }}>Accelerating Success</Text>
+                </View>
+            </Page>
+        </Document>
+    );
+};
+
+export default MarketingPDFDocument;

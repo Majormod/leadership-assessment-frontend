@@ -1,0 +1,449 @@
+// components/ImperiumReport.js
+
+import React, { useState, useRef } from 'react';
+import Image from 'next/image';
+import ImperiumRadarChart from './ImperiumRadarChart';
+import GaugeChart from './GaugeChart'; // Add this new import
+import DivergingBarChart from './DivergingBarChart'; // Add this new import
+import ChordDiagram from './ChordDiagram'; // Add this new import
+import jsPDF from 'jspdf';
+import html2canvas from 'html2canvas';
+
+// Helper Components
+// UPDATED Helper Components using the theme
+
+// NEW: Centralized Theme for consistent styling
+const theme = {
+    colors: {
+        primary: '#021B79',   // New very dark blue for headings
+        accent: '#0575E6',    // Lighter blue from chart for accents
+        text: '#333333',      // Dark grey for readability
+        lightText: '#666666', // Lighter grey for subtitles
+        background: '#FFFFFF',
+        lightBackground: '#F7F9FA',
+        borderColor: '#EAECEE',
+    },
+    fonts: {
+        heading: "'Helvetica Neue', 'Arial', sans-serif",
+        body: "'Helvetica Neue', Arial, sans-serif",
+    },
+};
+
+// NEW HELPER COMPONENTS
+
+const ReportHeader = ({ logoSrc }) => (
+    <div style={{ 
+        paddingBottom: '10px', 
+        borderBottom: `2px solid ${theme.colors.accent}`, 
+        textAlign: 'right' 
+    }}>
+        <Image src={logoSrc} alt="Company Logo" width={100} height={40} />
+    </div>
+);
+
+const ReportFooter = ({ currentPage, totalPages }) => (
+    <div style={{ 
+        position: 'absolute', 
+        bottom: '10px', 
+        left: '40px', 
+        right: '40px',
+        paddingTop: '10px', 
+        borderTop: `1px solid ${theme.colors.borderColor}`, 
+        textAlign: 'center', 
+        fontFamily: theme.fonts.body,
+        color: theme.colors.lightText,
+        fontSize: '12px'
+    }}>
+        The Imperium Leadership Index™ | Page {currentPage} of {totalPages}
+    </div>
+);
+
+// NEW HELPER COMPONENT FOR SCORE VISUALIZATION
+const ScoreBar = ({ score, color }) => {
+    const scorePercentage = (score / 10) * 100;
+    return (
+        <div style={{ 
+            height: '8px', 
+            width: '100%', 
+            backgroundColor: '#EAECEE', 
+            borderRadius: '4px', 
+            marginTop: '10px',
+            overflow: 'hidden'
+        }}>
+            <div style={{
+                height: '100%',
+                width: `${scorePercentage}%`,
+                backgroundColor: color,
+                borderRadius: '4px',
+                transition: 'width 0.5s ease-in-out'
+            }}></div>
+        </div>
+    );
+};
+
+    // Dummy data for Chord Diagram - you would generate this from user answers
+    const chordData = {
+        labels: ['People', 'Results', 'Innovation', 'Stability', 'Risk'],
+        colors: ['#0575E6', '#ED3F38', '#00D8A8', '#666666', '#f2b50a'],
+        matrix: [
+            [0, 5, 2, 3, 1],
+            [5, 0, 6, 4, 2],
+            [2, 6, 0, 1, 7],
+            [3, 4, 1, 0, 2],
+            [1, 2, 7, 2, 0]
+        ]
+    };
+    
+// Helper Components
+const SectionTitle = ({ children }) => (
+    <h2 style={{ 
+        fontFamily: theme.fonts.heading, 
+        fontSize: '2.4em', 
+        color: theme.colors.primary, 
+        borderBottom: `3px solid ${theme.colors.accent}`, 
+        paddingBottom: '10px', 
+        marginBottom: '20px', 
+        marginTop: '40px' 
+    }}>{children}</h2>
+);
+
+// ADD THIS LINE BACK
+// UPDATED Page Component
+const Page = ({ children, showHeader, showFooter, currentPage, totalPages, logoSrc }) => (
+    <div style={{ 
+        pageBreakAfter: 'always', 
+        padding: '40px', 
+        backgroundColor: theme.colors.background, 
+        position: 'relative', // Needed for footer positioning
+        minHeight: '297mm' // A4 height to ensure footer is at the bottom
+    }}>
+        {showHeader && <ReportHeader logoSrc={logoSrc} />}
+        
+        <div style={{ paddingBottom: '50px' }}> {/* Add padding to prevent content from overlapping footer */}
+            {children}
+        </div>
+
+        {showFooter && <ReportFooter currentPage={currentPage} totalPages={totalPages} />}
+    </div>
+);
+
+// UPDATED AnalysisCard to include the new ScoreBar
+const AnalysisCard = ({ title, score, analysis, isStrength }) => (
+    <div style={{ 
+        backgroundColor: theme.colors.background,
+        border: `1px solid ${theme.colors.borderColor}`,
+        borderRadius: '8px', 
+        padding: '20px', // Reduced from 25px
+        marginBottom: '15px', // Reduced from 20px
+        boxShadow: '0 4px 12px rgba(0,0,0,0.05)',
+        pageBreakInside: 'avoid' // This should be active
+    }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <h3 style={{ fontFamily: theme.fonts.heading, color: theme.colors.primary, margin: 0, fontSize: '1.1em' }}> 
+                {title}
+            </h3>
+            {score && <span style={{ fontFamily: theme.fonts.heading, color: theme.colors.primary, fontSize: '1.1em', fontWeight: 'normal' }}>{score}/10</span>}
+        </div>
+        
+        {score && <ScoreBar score={score} color={isStrength ? theme.colors.accent : '#F5B7B1'} />}
+        
+        <p style={{ 
+            fontFamily: theme.fonts.body, 
+            color: theme.colors.text, 
+            lineHeight: '1.6', // Reduced from 1.7
+            fontSize: '0.9em', 
+            whiteSpace: 'pre-wrap', 
+            margin: '15px 0 0 0' // Reduced from 20px
+        }}>
+            {analysis}
+        </p>
+    </div>
+);
+
+const SectionIntro = ({ children }) => (
+    <div style={{ 
+        fontStyle: 'normal',
+        color: theme.colors.lightText, 
+        backgroundColor: theme.colors.lightBackground,
+        borderLeft: `5px solid ${theme.colors.accent}`,
+        padding: '20px', 
+        margin: '20px 0' 
+    }}>
+        {children}
+    </div>
+);
+
+
+const ImperiumReport = ({ report }) => {
+    const [isDownloading, setIsDownloading] = useState(false);
+    const reportContentRef = useRef(null);
+
+    if (!report) {
+        return <Page><h2>Generating Your Detailed Report... Please Wait.</h2></Page>;
+    }
+
+    // UPDATED PDF HANDLER TO FIX PAGE BREAKS
+    const handleDownloadPDF = async () => {
+        const input = reportContentRef.current;
+        if (!input) return;
+
+        setIsDownloading(true);
+        const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+        const pdfWidth = pdf.internal.pageSize.getWidth();
+        const pdfHeight = pdf.internal.pageSize.getHeight();
+
+        const pages = input.children;
+
+        try {
+            for (let i = 0; i < pages.length; i++) {
+                const page = pages[i];
+                const canvas = await html2canvas(page, {
+                    scale: 2,
+                    useCORS: true,
+                    logging: false,
+                    width: page.offsetWidth,
+                    height: page.offsetHeight
+                });
+
+                const imgData = canvas.toDataURL('image/png');
+                const ratio = canvas.height / canvas.width;
+                const imgHeight = pdfWidth * ratio;
+
+                pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, Math.min(imgHeight, pdfHeight));
+
+                if (i < pages.length - 1) {
+                    pdf.addPage();
+                }
+            }
+            pdf.save("Imperium-Leadership-Report.pdf");
+        } catch (error) {
+            console.error("Error generating PDF:", error);
+        } finally {
+            setIsDownloading(false);
+        }
+    };
+
+    const { executiveSummary, powerQuadrant, breakthroughZone, tradeOffArenas, leadershipArchetype } = report;
+    const chartData = powerQuadrant?.strengths?.map(s => ({ dimension: s.trait, score: parseFloat(s.score) })) || [];
+
+    // Separate Personal Arenas from the main Trade-off Arenas for easier rendering
+    const mainArenas = tradeOffArenas?.arenas?.filter(arena => !arena.arenaName.includes("CoreForce") && !arena.arenaName.includes("FlexiMind") && !arena.arenaName.includes("ResilientSelf") && !arena.arenaName.includes("HorizonSense")) || [];
+    const personalArenas = tradeOffArenas?.arenas?.filter(arena => arena.arenaName.includes("CoreForce") || arena.arenaName.includes("FlexiMind") || arena.arenaName.includes("ResilientSelf") || arena.arenaName.includes("HorizonSense")) || [];
+
+
+    return (
+        <div style={{ fontFamily: 'sans-serif', color: '#333', maxWidth: '900px', margin: '0 auto', backgroundColor: '#f0f0f0' }}>
+            <div style={{ textAlign: 'center', padding: '20px 40px', borderBottom: '1px solid #eee', backgroundColor: 'white' }}>
+                <p style={{ margin: '0 0 15px 0' }}>Your report is ready. You can download a high-quality PDF copy below.</p>
+                <button
+                    onClick={handleDownloadPDF}
+                    disabled={isDownloading}
+                    style={{
+                        padding: '12px 25px', fontSize: '1.1em', cursor: isDownloading ? 'not-allowed' : 'pointer',
+                        backgroundColor: isDownloading ? '#6c757d' : '#007bff', color: 'white', border: 'none',
+                        borderRadius: '5px', transition: 'background-color 0.2s'
+                    }}
+                >
+                    {isDownloading ? 'Generating PDF...' : 'Download Report as PDF'}
+                </button>
+            </div>
+
+            <div ref={reportContentRef}>
+                {/* --- A SINGLE, DEDICATED TITLE PAGE --- */}
+                <Page>
+                    <div style={{ textAlign: 'center', height: '80vh', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
+                        <Image src="/logo.png" alt="Company Logo" width={200} height={80} />
+                        <h1 style={{ marginTop: '30px', color: '#003366', fontSize: '3em' }}>The Imperium Leadership Index™</h1>
+                        <h2 style={{ fontStyle: 'italic', color: '#555' }}>Your Personalized Leadership Report</h2>
+                    </div>
+                </Page>
+
+                {/* --- INTRODUCTORY TEXT PAGES (FROM PDF) --- */}
+                <Page>
+                    <SectionTitle>Welcome to Your Personalized Leadership Journey</SectionTitle>
+                    <p style={{ lineHeight: '1.6', fontSize: '1.1em' }}>We're delighted to have you take this important step toward deepening your leadership capability. The assessment you've just completed is not an exam - it's a powerful tool designed to help you reflect, discover, and grow. Through this case-based, real-world simulation, you've been challenged to think, decide, and lead as modern leaders do across complexity, ambiguity, and competing priorities.</p>
+                    <p style={{ lineHeight: '1.6', fontSize: '1.1em', marginTop: '1em' }}>At Leadership Accelerator, we believe that leadership is not just a title - it's a craft. A craft that can be sharpened, evolved, and elevated at every stage of your career. This report is the first step in that ongoing process.</p>
+                    <p style={{ fontWeight: 'bold', marginTop: '20px', fontSize: '1.1em' }}>Our promise to you:</p>
+                    <ul style={{ lineHeight: '1.6', fontSize: '1.1em', listStylePosition: 'inside' }}>
+                        <li>We will help you see your leadership strengths clearly.</li>
+                        <li>We will help you identify practical areas to strengthen further.</li>
+                        <li>And we will stand beside you as you translate insight into action, and action into impact.</li>
+                    </ul>
+                    <p style={{ lineHeight: '1.6', fontSize: '1.1em', marginTop: '1em' }}>Thank you for trusting us to be part of your leadership journey. We look forward to supporting you in building the kind of leadership that inspires teams, drives results, and creates lasting value.</p>
+                    <p style={{ marginTop: '50px', fontWeight: 'bold', fontSize: '1.1em' }}>The Leadership Accelerator Team</p>
+                </Page>
+                <Page>
+                    <SectionTitle>Message to the Candidate</SectionTitle>
+                    <p style={{ lineHeight: '1.6' }}>Congratulations on completing this leadership assessment. What you hold in your hands is more than just a report - it's a mirror reflecting how you approach complex leadership situations, make decisions under pressure, and navigate the realities of leading teams, stakeholders, and businesses in a changing world. This report is designed to give you a clear view of your leadership strengths - the qualities that already set you apart - and the areas where deeper growth can unlock even greater impact. We encourage you to treat this as a starting point for reflection and action, not as a final verdict.</p>
+                    <h3 style={{ color: '#003366', marginTop: '30px' }}>How to use this report</h3>
+                    <ul style={{ lineHeight: '1.6', listStylePosition: 'inside' }}>
+                        <li>Take time to read through each section carefully and honestly reflect on what resonates with your experience.</li>
+                        <li>Look at your identified strengths and ask: How can I apply these more intentionally in my daily leadership? How can I make them visible to others?</li>
+                        <li>Look at the observed gaps or growth areas not as weaknesses, but as opportunities to stretch yourself, experiment with new approaches, and build leadership depth.</li>
+                    </ul>
+                    <h3 style={{ color: '#003366', marginTop: '30px' }}>How to start working on your growth</h3>
+                    <ul style={{ lineHeight: '1.6', listStylePosition: 'inside' }}>
+                        <li>Pick one or two strengths and challenge yourself to apply them in new, more impactful ways - for example, mentoring others using your strengths or leading a new initiative where they shine.</li>
+                        <li>Choose one gap area and set a small, practical goal for improvement - whether it’s seeking feedback, trying a new technique, or practicing in safe environments.</li>
+                        <li>Consider partnering with a coach or mentor to support your growth journey using the insights from this report.</li>
+                    </ul>
+                    <p style={{ lineHeight: '1.6', fontWeight: 'bold', marginTop: '20px' }}>Above all, remember: leadership is not a fixed trait - it’s a practice.</p>
+                    <p style={{ lineHeight: '1.6' }}>This report is your guide to becoming the kind of leader who inspires, adapts, and thrives. We wish you success in building on your strengths and turning challenges into opportunities for lasting impact.</p>
+                    <p style={{ marginTop: '50px', fontWeight: 'bold' }}>The Leadership Accelerator Team</p>
+                </Page>
+                <Page>
+                    <SectionTitle>Your Privacy and Confidentiality Matter to Us</SectionTitle>
+                    <p style={{ lineHeight: '1.6' }}>We want to assure you that this report and everything you have shared during the assessment - is completely confidential. The insights, responses, and results are meant solely for your personal development. No part of this report will be shared with anyone except you.</p>
+                    <ul style={{ lineHeight: '1.6', listStylePosition: 'inside', marginTop: '20px' }}>
+                        <li>Your data is not used for any other purpose no analysis, no benchmarking, no external sharing.</li>
+                        <li>We do not store or reuse your individual responses in any way that links back to you personally.</li>
+                    </ul>
+                    <p style={{ lineHeight: '1.6', marginTop: '20px' }}>At Leadership Accelerator Company, we are deeply committed to your trust. This report is yours - for your reflection, growth, and use alone.</p>
+                </Page>
+
+                {/* --- THE FIRST CONTENT PAGE (SUMMARY + CHART) --- */}
+                <Page>
+                    <SectionIntro>
+                        <h3 style={{ color: '#003366', marginBottom: '10px', marginTop: 0 }}>Executive Summary</h3>
+                        <p style={{ margin: 0 }}>{executiveSummary}</p>
+                    </SectionIntro>
+                    <SectionTitle>Your Leadership Profile at a Glance</SectionTitle>
+                    <p>This chart provides a holistic view of your leadership strengths based on your Power Quadrant™ results, visualizing your unique capabilities.</p>
+                    <div style={{ height: '500px', maxWidth: '600px', margin: '40px auto' }}>
+                        {chartData.length > 0 && <ImperiumRadarChart reportScores={chartData} />}
+                    </div>
+                </Page>
+
+                {/* --- ALL OTHER ANALYTICAL PAGES --- */}
+            
+
+{powerQuadrant && (
+    <>
+        <Page>
+            <SectionTitle>{powerQuadrant.title}</SectionTitle>
+            <SectionIntro>
+                <p style={{ margin: 0 }}>The Power Quadrant&trade; represents the four distinct strengths that form the foundation of your unique leadership style. These traits are not just individual abilities - together, they create the force behind how you inspire, guide, and deliver impact in complex situations.</p>
+            </SectionIntro>
+
+            <div style={{ maxWidth: '600px', margin: '20px auto 40px auto' }}>
+                <GaugeChart strengths={powerQuadrant?.strengths} />
+            </div>
+        </Page>
+        
+        {/* New page for the first two strength cards */}
+        <Page>
+            {powerQuadrant.strengths?.slice(0, 2).map((item, index) => (
+                <AnalysisCard key={`pq-${index}`} title={item.trait} score={item.score} analysis={item.analysis} isStrength={true} />
+            ))}
+        </Page>
+
+        {/* New page for the last two strength cards */}
+        <Page>
+             {powerQuadrant.strengths?.slice(2, 4).map((item, index) => (
+                <AnalysisCard key={`pq-${index + 2}`} title={item.trait} score={item.score} analysis={item.analysis} isStrength={true} />
+            ))}
+        </Page>
+    </>
+)}
+
+
+{breakthroughZone && (
+    <>
+        <Page>
+            <SectionTitle>{breakthroughZone.title}</SectionTitle>
+            <SectionIntro>
+               <p style={{ margin: 0 }}>The Breakthrough Zone&trade; highlights the four key areas where intentional development will help you elevate your leadership impact. These are not weaknesses to be ashamed of - they are the very traits that, once strengthened, have the power to unlock your next level of effectiveness, influence, and success as a leader.</p>
+            </SectionIntro>
+
+             <div style={{ width: '100%', margin: '40px auto' }}>
+                <DivergingBarChart developmentAreas={breakthroughZone?.developmentAreas} />
+            </div>
+        </Page>
+        
+        {/* New page for the first two development cards */}
+        <Page>
+            {breakthroughZone.developmentAreas?.slice(0, 2).map((item, index) => (
+                <AnalysisCard key={`bz-${index}`} title={item.trait} score={item.score} analysis={item.analysis} isStrength={false} />
+            ))}
+        </Page>
+
+        {/* New page for the last two development cards */}
+        <Page>
+            {breakthroughZone.developmentAreas?.slice(2, 4).map((item, index) => (
+                <AnalysisCard key={`bz-${index + 2}`} title={item.trait} score={item.score} analysis={item.analysis} isStrength={false} />
+            ))}
+        </Page>
+    </>
+)}
+
+                {/* Main Trade-Off Arenas Introduction Page */}
+                {mainArenas.length > 0 && (
+                     <Page>
+                        <SectionTitle>Trade-off Arenas Report</SectionTitle>
+                        <SectionIntro>
+                            <p style={{ margin: 0 }}>The <strong>Leadership Accelerator™ 8 Trade-off Arenas</strong> represent the core tensions that every modern leader must navigate. Leadership is rarely about clear-cut choices; it is about balancing competing demands with intention, clarity, and adaptability. This assessment offers a mirror that helps you see where you stand across these crucial arenas of leadership tension.</p>
+                        </SectionIntro>
+                    </Page>
+                )}
+               <Page>
+        <SectionTitle>Trade-off Arena Connections</SectionTitle>
+        <p>This diagram visualizes the interplay between core leadership values based on your decisions. The thickness of the bands (chords) indicates the strength of the connection in your leadership style.</p>
+        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', width: '100%' }}>
+            <ChordDiagram data={chordData} />
+        </div>
+    </Page>
+                {/* Individual Main Arena Pages */}
+                {mainArenas.map((item, index) => (
+                    <Page key={`ta-${index}`}>
+                        <SectionTitle>{item.arenaName}</SectionTitle>
+                        {item.intro && 
+                            <SectionIntro>
+                                <p style={{margin: 0}}>{item.intro}</p>
+                            </SectionIntro>
+                        }
+                        <div style={{ lineHeight: '1.6', whiteSpace: 'pre-wrap' }}>{item.analysis}</div>
+                    </Page>
+                ))}
+                
+                {/* Personal Trade-off Arenas Introduction Page */}
+                {personalArenas.length > 0 && (
+                    <Page>
+                        <SectionTitle>Personal Trade-off Arenas Report</SectionTitle>
+                         <SectionIntro>
+                            <p style={{ margin: 0 }}>The <strong>Leadership Accelerator™ 4 Personal Trade-off Arenas</strong> represent the inner forces that quietly shape everything a leader does. This assessment offers a valuable opportunity to reflect on how your inner world shapes your outer impact - and to chart a path for stronger, more sustainable leadership.</p>
+                        </SectionIntro>
+                    </Page>
+                )}
+
+                {/* Individual Personal Arena Pages */}
+                {personalArenas.map((item, index) => (
+                    <Page key={`pa-${index}`}>
+                        <SectionTitle>{item.arenaName}</SectionTitle>
+                         {item.intro && 
+                            <SectionIntro>
+                                <p style={{margin: 0}}>{item.intro}</p>
+                            </SectionIntro>
+                        }
+                        <div style={{ lineHeight: '1.6', whiteSpace: 'pre-wrap' }}>{item.analysis}</div>
+                    </Page>
+                ))}
+
+                {/* Leadership Archetype Page */}
+                {leadershipArchetype && (
+                    <Page>
+                        <SectionTitle>{leadershipArchetype.title}</SectionTitle>
+                        <SectionIntro>
+                            <p style={{margin: 0}}>Sees and inspires others toward bold future possibilities, often focusing on the big picture over immediate details.</p>
+                        </SectionIntro>
+                        <AnalysisCard
+                            title={leadershipArchetype.archetype}
+                            analysis={leadershipArchetype.analysis}
+                        />
+                    </Page>
+                )}
+            </div>
+        </div>
+    );
+};
+
+export default ImperiumReport;

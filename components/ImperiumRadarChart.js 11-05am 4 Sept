@@ -1,0 +1,89 @@
+// components/ImperiumRadarChart.js
+
+import React from 'react';
+import {
+  Chart as ChartJS,
+  RadialLinearScale,
+  PointElement,
+  LineElement,
+  Filler,
+  Tooltip,
+  Legend,
+} from 'chart.js';
+import { Radar } from 'react-chartjs-2';
+
+ChartJS.register(
+  RadialLinearScale,
+  PointElement,
+  LineElement,
+  Filler,
+  Tooltip,
+  Legend
+);
+
+const ImperiumRadarChart = ({ reportScores }) => {
+  if (!reportScores || reportScores.length === 0) {
+    return <p>No score data available to display chart.</p>;
+  }
+
+  const data = {
+    labels: reportScores.map(item => item.dimension),
+    datasets: [
+      {
+        label: 'Leadership Score',
+        data: reportScores.map(item => item.score),
+        backgroundColor: 'rgba(0, 51, 102, 0.2)',
+        borderColor: 'rgba(0, 51, 102, 1)',
+        borderWidth: 2,
+        pointBackgroundColor: 'rgba(0, 51, 102, 1)',
+        pointBorderColor: '#fff',
+        pointHoverBackgroundColor: '#fff',
+        pointHoverBorderColor: 'rgba(0, 51, 102, 1)',
+      },
+    ],
+  };
+
+  const options = {
+    maintainAspectRatio: false,
+    scales: {
+      r: {
+        angleLines: {
+          color: '#ccc',
+        },
+        grid: {
+          color: '#ddd',
+        },
+        pointLabels: {
+          font: {
+            size: 14,
+            weight: 'bold',
+          },
+          color: '#333',
+        },
+        ticks: {
+          backdropColor: 'white',
+          color: '#555',
+          beginAtZero: true,
+          // --- FIX: The scale should be 0-10 to match your report's scores ---
+          max: 10,
+          // A step size of 2 looks cleaner on a 0-10 scale
+          stepSize: 2,
+        },
+      },
+    },
+    plugins: {
+      legend: {
+        position: 'top',
+        labels: {
+          font: {
+            size: 16,
+          },
+        },
+      },
+    },
+  };
+
+  return <Radar data={data} options={options} />;
+};
+
+export default ImperiumRadarChart;

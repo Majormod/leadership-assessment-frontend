@@ -1,0 +1,99 @@
+// components/ImperiumReport.js
+
+import React from 'react';
+import Image from 'next/image';
+import ImperiumRadarChart from './ImperiumRadarChart';
+
+// Helper Components
+const SectionTitle = ({ children }) => <h2 style={{ fontSize: '2.2em', color: '#003366', borderBottom: '2px solid #0056b3', paddingBottom: '10px', marginBottom: '20px', marginTop: '40px' }}>{children}</h2>;
+const Page = ({ children }) => <div style={{ pageBreakAfter: 'always', padding: '40px', backgroundColor: 'white' }}>{children}</div>;
+const AnalysisCard = ({ title, score, analysis }) => (
+    <div style={{ border: '1px solid #e0e0e0', padding: '20px', borderRadius: '8px', backgroundColor: '#f8f9fa', marginBottom: '20px' }}>
+        <h3 style={{ color: '#003366', margin: '0 0 10px 0' }}>{title} {score && <span style={{ color: '#0056b3', fontWeight: 'normal' }}>({score}/10)</span>}</h3>
+        <p style={{ lineHeight: '1.6', whiteSpace: 'pre-wrap' }}>{analysis}</p>
+    </div>
+);
+
+
+const ImperiumReport = React.forwardRef(({ report }, ref) => {
+    if (!report) {
+        return <Page><h2>Generating Your Detailed Report... Please Wait.</h2></Page>;
+    }
+
+    // --- FIX: Destructure the NEW, nested objects from the Master Prompt response ---
+    const { executiveSummary, powerQuadrant, breakthroughZone, tradeOffArenas, leadershipArchetype } = report;
+    
+    // Create the data for the radar chart from the Power Quadrant scores
+    const chartData = powerQuadrant?.strengths.map(s => ({ dimension: s.trait, score: parseFloat(s.score) })) || [];
+
+    return (
+        <div ref={ref} style={{ fontFamily: 'sans-serif', color: '#333', maxWidth: '900px', margin: '0 auto', backgroundColor: 'white' }}>
+
+            {/* --- PAGE 1: Title & Executive Summary --- */}
+            <Page>
+                <Image src="/logo.png" alt="Company Logo" width={200} height={80} />
+                <h1 style={{ marginTop: '30px', color: '#003366' }}>The Imperium Leadership Index™</h1>
+                <h2 style={{ fontStyle: 'italic', color: '#555' }}>Your Personalized Leadership Report</h2>
+                <p style={{ lineHeight: '1.6', marginTop: '20px' }}>Congratulations on completing this in-depth assessment. This report is a mirror reflecting how you navigate the core tensions of modern leadership. Use it not as a final verdict, but as a starting point for reflection, dialogue, and intentional growth.</p>
+                <div style={{ marginTop: '30px', padding: '20px', backgroundColor: '#f8f9fa', borderRadius: '8px', borderLeft: '5px solid #0056b3' }}>
+                    <h3 style={{ color: '#003366', marginBottom: '10px' }}>Executive Summary</h3>
+                    <p style={{ fontStyle: 'italic' }}>{executiveSummary}</p>
+                </div>
+            </Page>
+            
+            {/* --- PAGE 2: Radar Chart --- */}
+            <Page>
+                <SectionTitle>Your Leadership Profile at a Glance</SectionTitle>
+                <p>This chart provides a holistic view of your leadership strengths based on your Power Quadrant™ results, visualizing your unique capabilities.</p>
+                <div style={{ height: '500px', maxWidth: '600px', margin: '40px auto' }}>
+                    {chartData.length > 0 && <ImperiumRadarChart reportScores={chartData} />}
+                </div>
+            </Page>
+
+            {/* --- PAGE 3: Power Quadrant (Strengths) --- */}
+            <Page>
+                <SectionTitle>{powerQuadrant?.title}</SectionTitle>
+                <p>{powerQuadrant?.description}</p>
+                <div style={{ marginTop: '20px' }}>
+                    {powerQuadrant?.strengths?.map((item, index) => (
+                        <AnalysisCard key={index} title={item.trait} score={item.score} analysis={item.analysis} />
+                    ))}
+                </div>
+            </Page>
+            
+            {/* --- PAGE 4: Breakthrough Zone (Development) --- */}
+            <Page>
+                <SectionTitle>{breakthroughZone?.title}</SectionTitle>
+                <p>{breakthroughZone?.description}</p>
+                <div style={{ marginTop: '20px' }}>
+                    {breakthroughZone?.developmentAreas?.map((item, index) => (
+                        <AnalysisCard key={index} title={item.trait} score={item.score} analysis={item.analysis} />
+                    ))}
+                </div>
+            </Page>
+
+            {/* --- PAGE 5: Trade-Off Arena Analysis --- */}
+            <Page>
+                <SectionTitle>{tradeOffArenas?.title}</SectionTitle>
+                 {tradeOffArenas?.arenas?.map((item, index) => (
+                    <div key={index}>
+                        <h3 style={{ color: '#0056b3', fontSize: '1.5em' }}>{item.arenaName}</h3>
+                        <p style={{ lineHeight: '1.6', whiteSpace: 'pre-wrap', marginTop: '10px' }}>{item.analysis}</p>
+                    </div>
+                ))}
+            </Page>
+
+            {/* --- PAGE 6: Leadership Archetype --- */}
+            <Page>
+                <SectionTitle>{leadershipArchetype?.title}</SectionTitle>
+                <div style={{ marginTop: '20px' }}>
+                     <AnalysisCard title={leadershipArchetype.archetype} analysis={leadershipArchetype.analysis} />
+                </div>
+            </Page>
+
+        </div>
+    );
+});
+
+ImperiumReport.displayName = 'ImperiumReport';
+export default ImperiumReport;
