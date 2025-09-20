@@ -377,26 +377,23 @@ const handleDownloadPdf = async () => {
     setIsGenerating(true);
 
     try {
-        // Step 1: Generate chart images
+        // Step 1: Generate chart images (same as before)
         const imagePromises = Object.entries(chartRefs.current).map(async ([key, node]) => {
     if (node) {
         try {
             const dataUrl = await toPng(node, {
-                backgroundColor: '#FFFFFF',
-                quality: 1.0,
-                pixelRatio: 2
+                // ... your options
             });
             return [key, dataUrl];
         } catch (error) {
             console.error(`Could not generate image for chart: ${key}`, error);
-            return [key, null]; // This was missing
+            // This catch block might be missing a return statement
         }
     }
     return [key, null];
 });
-        
         const settledImages = await Promise.all(imagePromises);
-        const chartImages = Object.fromEntries(settedImages.filter(entry => entry[1] !== null));
+        const chartImages = Object.fromEntries(settledImages.filter(entry => entry[1] !== null));
 
         // Step 2: Generate the core report PDF in memory
         const coreReportBlob = await pdf(
@@ -412,53 +409,17 @@ const handleDownloadPdf = async () => {
         ).toBlob();
         const coreReportBuffer = await coreReportBlob.arrayBuffer();
 
-        // Step 3: Fetch cover PDFs with detailed error handling
-        console.log('Fetching cover PDFs...');
-
-        // FIX: You need to get the response first to check status
-        const [frontCoverResponse, backCoverResponse] = await Promise.all([
-            fetch('http://34.195.233.179/pdf/Front-Cover.pdf'),
-            fetch('http://34.195.233.179/pdf/Back-Cover.pdf')
-        ]);
-
-        console.log('Front cover response status:', frontCoverResponse.status, frontCoverResponse.ok);
-        console.log('Back cover response status:', backCoverResponse.status, backCoverResponse.ok);
-
-        if (!frontCoverResponse.ok) throw new Error(`Front cover failed: ${frontCoverResponse.status}`);
-        if (!backCoverResponse.ok) throw new Error(`Back cover failed: ${backCoverResponse.status}`);
-
-        // Now get the array buffers
+        // Step 3: Fetch your cover PDFs
         const [frontCoverBuffer, backCoverBuffer] = await Promise.all([
-            frontCoverResponse.arrayBuffer(),
-            backCoverResponse.arrayBuffer()
+            fetch('http://34.195.233.179/pdf/Front-Cover.pdf').then(res => res.arrayBuffer()),
+            fetch('http://34.195.233.179/pdf/Back-Cover.pdf').then(res => res.arrayBuffer())
         ]);
-
-        console.log('Front cover buffer size:', frontCoverBuffer.byteLength);
-        console.log('Back cover buffer size:', backCoverBuffer.byteLength);
 
         // Step 4: Create a new PDF and load all source PDFs
-        console.log('Loading PDF documents...');
         const finalPdfDoc = await PDFDocument.create();
         const coreReportDoc = await PDFDocument.load(coreReportBuffer);
-        
-        // FIX: Remove the duplicate declarations of frontCoverDoc and backCoverDoc
-        let frontCoverDoc, backCoverDoc;
-        
-        try {
-            frontCoverDoc = await PDFDocument.load(frontCoverBuffer);
-            console.log('Front cover PDF loaded successfully');
-        } catch (e) {
-            console.error('Failed to load front cover PDF:', e);
-            throw new Error('Front cover PDF is corrupted or invalid');
-        }
-
-        try {
-            backCoverDoc = await PDFDocument.load(backCoverBuffer);
-            console.log('Back cover PDF loaded successfully');
-        } catch (e) {
-            console.error('Failed to load back cover PDF:', e);
-            throw new Error('Back cover PDF is corrupted or invalid');
-        }
+        const frontCoverDoc = await PDFDocument.load(frontCoverBuffer);
+        const backCoverDoc = await PDFDocument.load(backCoverBuffer);
 
         // Step 5: Copy pages from all sources into the final document
         const [frontPage] = await finalPdfDoc.copyPages(frontCoverDoc, [0]);
@@ -478,21 +439,22 @@ const handleDownloadPdf = async () => {
         const name = report.userInfo?.name || 'Valued Professional';
         const nameWidth = boldFont.widthOfTextAtSize(name, 20);
 
-        frontPage.drawText('Personalized Report For:', {
-            x: (width - font.widthOfTextAtSize('Personalized Report For:', 12)) / 2,
-            y: height * 0.25,
-            size: 12,
-            font: font,
-            color: rgb(1, 1, 1),
-        });
+        // REPLACE WITH THIS BLOCK
+frontPage.drawText('Personalized Report For:', {
+    x: (width - font.widthOfTextAtSize('Personalized Report For:', 12)) / 2,
+    y: height * 0.25, // MOVED: From 50% down to the 25% mark
+    size: 12,
+    font: font,
+    color: rgb(1, 1, 1), // CHANGED: To white
+});
 
-        frontPage.drawText(name, {
-            x: (width - nameWidth) / 2,
-            y: (height * 0.25) - 25,
-            size: 20,
-            font: boldFont,
-            color: rgb(1, 1, 1),
-        });
+frontPage.drawText(name, {
+    x: (width - nameWidth) / 2,
+    y: (height * 0.25) - 25, // MOVED: Relative to the new position
+    size: 20,
+    font: boldFont,
+    color: rgb(1, 1, 1), // CHANGED: To white
+});
 
         // Step 7: Save and download the final, merged PDF
         const finalPdfBytes = await finalPdfDoc.save();
@@ -501,20 +463,6 @@ const handleDownloadPdf = async () => {
 
     } catch (error) {
         console.error("Failed to generate PDF:", error);
-        // Add fallback to generate without covers
-        const reportBlob = await pdf(
-            <MarketingPDFDocument 
-                report={{
-                    ...report,
-                    reportStructureData,
-                    executiveSummaryDescriptions
-                }} 
-                logoDataURI={logoDataURI}
-                chartImages={chartImages}
-            />
-        ).toBlob();
-        
-        saveAs(reportBlob, "Marketing-Influence-Quotient-Report-No-Covers.pdf");
     } finally {
         setIsGenerating(false);
     }
