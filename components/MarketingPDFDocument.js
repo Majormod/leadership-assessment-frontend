@@ -2,6 +2,7 @@
 import React from 'react';
 import { Page, Text, View, Document, StyleSheet, Image, Font } from '@react-pdf/renderer';
 
+/*
 // Font registration remains the same.
 Font.register({
     family: 'Roboto',
@@ -28,6 +29,7 @@ Font.register({
         },
     ]
 });
+*/
 
 // Styles have been slightly adjusted for better list formatting.
 const styles = StyleSheet.create({
@@ -35,7 +37,7 @@ const styles = StyleSheet.create({
         paddingTop: '15mm',
         paddingBottom: '20mm',
         paddingHorizontal: '15mm',
-        fontFamily: 'Roboto',
+        fontFamily: 'Helvetica',
         fontSize: 10,
         lineHeight: 1.5,
         color: '#333333',
@@ -54,8 +56,8 @@ const styles = StyleSheet.create({
     text: { marginBottom: 10, fontWeight: 400, textAlign: 'justify' },
     italic: { fontStyle: 'italic', color: '#555' },
     bold: { fontWeight: 700 },
-    coverPageText: { fontFamily: 'Roboto', fontSize: 12, marginTop: 80, fontWeight: 400 },
-    coverPageName: { fontFamily: 'Roboto', fontWeight: 700, fontSize: 20, color: '#1D2951', marginTop: 5 },
+    coverPageText: { fontFamily: 'Helvetica', fontSize: 12, marginTop: 80, fontWeight: 400 },
+    coverPageName: { fontFamily: 'Helvetica', fontWeight: 700, fontSize: 20, color: '#1D2951', marginTop: 5 },
     analysisBox: 
     { marginTop: 15, padding: 15, backgroundColor: '#F8F9FA', border: '1px solid #DEE2E6', borderRadius: 5, marginBottom: 15 
     },
