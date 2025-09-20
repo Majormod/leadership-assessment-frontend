@@ -46,7 +46,9 @@ const MarketingQuotientPage = () => {
     useEffect(() => {
         const fetchQuestions = async () => {
             try {
-                const res = await fetch(`${apiUrl}/api/marketing/questions`);
+                // ADD THIS DEBUG LINE:
+                console.log("DEBUG: Fetching from URL:", `/api/marketing/questions`);
+                const res = await fetch(`${apiUrl}/marketing/questions`);
                 if (!res.ok) throw new Error(`Server responded with ${res.status}`);
                 const allQuestions = await res.json();
                 
