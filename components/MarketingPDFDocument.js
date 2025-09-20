@@ -6,10 +6,26 @@ import { Page, Text, View, Document, StyleSheet, Image, Font } from '@react-pdf/
 Font.register({
     family: 'Roboto',
     fonts: [
-        { src: '/fonts/Roboto-Regular.ttf', fontWeight: 400, fontStyle: 'normal' },
-        { src: '/fonts/Roboto-Bold.ttf', fontWeight: 700, fontStyle: 'normal' },
-        { src: '/fonts/Roboto-Italic.ttf', fontWeight: 400, fontStyle: 'italic' },
-        { src: '/fonts/Roboto-BoldItalic.ttf', fontWeight: 700, fontStyle: 'italic' },
+        { 
+            src: '/marketing-quotient/fonts/Roboto-Regular.ttf', 
+            fontWeight: 400, 
+            fontStyle: 'normal' 
+        },
+        { 
+            src: '/marketing-quotient/fonts/Roboto-Bold.ttf', 
+            fontWeight: 700, 
+            fontStyle: 'normal' 
+        },
+        { 
+            src: '/marketing-quotient/fonts/Roboto-Italic.ttf', 
+            fontWeight: 400, 
+            fontStyle: 'italic' 
+        },
+        { 
+            src: '/marketing-quotient/fonts/Roboto-BoldItalic.ttf', 
+            fontWeight: 700, 
+            fontStyle: 'italic' 
+        },
     ]
 });
 
