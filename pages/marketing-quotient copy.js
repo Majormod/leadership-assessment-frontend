@@ -1,4 +1,4 @@
-// pages/marketing-quotient.js Edited for working with LMS
+// pages/marketing-quotient.js
 
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
@@ -9,7 +9,7 @@ import McqStatement from '../components/McqStatement';       // We'll create thi
 import { marketingAnswerKey } from '../data/marketing-answer-key';
 import MarketingReport from '../components/MarketingReport'; // The final report component
 
-// const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
+const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
 
 // ADD THIS HELPER FUNCTION
 const sanitizeAnalysisText = (text) => {
@@ -34,12 +34,7 @@ const MarketingQuotientPage = () => {
     const [answers, setAnswers] = useState({});
     const [jobId, setJobId] = useState(null);
     const [report, setReport] = useState(null);
-
-    // NEW: State for holding the layout HTML
-    const [headerHtml, setHeaderHtml] = useState(null);
-    const [footerHtml, setFooterHtml] = useState(null);
-    const [scriptUrls, setScriptUrls] = useState([]);
-
+    
     const totalQuestions = questions.length;
     const answeredQuestions = Object.keys(answers).length;
     const isSubmitDisabled = answeredQuestions < totalQuestions;
@@ -51,7 +46,7 @@ const MarketingQuotientPage = () => {
     useEffect(() => {
         const fetchQuestions = async () => {
             try {
-                const res = await fetch('/api/marketing/questions');
+                const res = await fetch(`${apiUrl}/api/marketing/questions`);
                 if (!res.ok) throw new Error(`Server responded with ${res.status}`);
                 const allQuestions = await res.json();
                 
@@ -87,41 +82,6 @@ const MarketingQuotientPage = () => {
         };
         fetchQuestions();
     }, []);
-
-    // ADD THIS ENTIRE BLOCK
-useEffect(() => {
-//  const lmsUrl = 'http://34.195.233.179'; // Your LMS URL
-    const fetchLayout = async () => {
-        try {
-            const [headerRes, footerRes] = await Promise.all([
-                fetch('/api/layout/header'),
-                fetch('/api/layout/footer'),
-            ]);
-            
-            if (!headerRes.ok || !footerRes.ok) {
-                throw new Error('Failed to fetch layout from LMS');
-            }
-
-            const headerText = await headerRes.text();
-            const footerText = await footerRes.text();
-
-            const scriptSrcRegex = /<script.*?src=["'](.*?)["']/gi;
-            const urls = [];
-            let match;
-            while ((match = scriptSrcRegex.exec(headerText)) !== null) {
-                urls.push(match[1]);
-            }
-            
-            setHeaderHtml(headerText);
-            setFooterHtml(footerText);
-            setScriptUrls(urls);
-
-        } catch (error) {
-            console.error("Failed to fetch LMS layout:", error);
-        }
-    };
-    fetchLayout();
-}, []); // The empty array [] ensures this runs only once
 
     // --- MODIFIED: Poll the marketing status endpoint ---
     useEffect(() => {
@@ -185,7 +145,7 @@ const handleAutoAnswer = () => {
         console.log("Submitting this payload to the backend:", JSON.stringify(answers, null, 2));
 
         try {
-            const res = await fetch('/api/marketing/submit', {
+            const res = await fetch(`${apiUrl}/api/marketing/submit`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ answers })
@@ -224,84 +184,65 @@ if (assessmentState === 'completed' && report) {
         }, {})
     };
 
-    return (
-        <>
-            <Head>
-                <title>Your Marketing Influence Quotient Report</title>
-                {scriptUrls.map((url) => (
-                    <script key={url} src={url} defer></script>
-                ))}
-            </Head>
-            {headerHtml && <div dangerouslySetInnerHTML={{ __html: headerHtml }} />}
-            <MarketingReport report={sanitizedReport} />
-            {footerHtml && <div dangerouslySetInnerHTML={{ __html: footerHtml }} />}
-        </>
-    );
+      return <MarketingReport report={sanitizedReport} />;
 }
 
 // --- Main assessment rendering ---
 return (
-    <>
-        <Head>
-            <title>Marketing Influence Quotient Assessment</title>
-            {scriptUrls.map((url) => (
-                <script key={url} src={url} defer></script>
-            ))}
-        </Head>
+    <div style={{ fontFamily: 'Arial, sans-serif', maxWidth: '900px', margin: 'auto', padding: '20px', backgroundColor: 'white', color: 'black' }}>
 
-        {headerHtml && <div dangerouslySetInnerHTML={{ __html: headerHtml }} />}
+        {/* This logic now correctly handles all possible states of the assessment */}
+
+        {assessmentState === 'loading' && <div>Loading Assessment...</div>}
         
-        <div style={{ fontFamily: 'Arial, sans-serif', maxWidth: '900px', margin: 'auto', padding: '20px', backgroundColor: 'white', color: 'black' }}>
-    {assessmentState === 'in_progress' && (
-        <>
-            <header style={{ textAlign: 'center', borderBottom: '1px solid #eee', paddingBottom: '20px', marginBottom: '30px' }}>
-                <Image src="/logo.png" alt="Company Logo" width={180} height={72} />
-                <h1 style={{ color: '#003366', marginTop: '10px' }}>The Marketing Influence Quotient™</h1>
-                <p style={{ fontStyle: 'italic', color: '#555' }}>Please respond to the following statements and questions.</p>
-            </header>
-            <main>
-                {questions.map((q, index) => (
-                    <div key={q.questionId} style={{ marginBottom: '40px' }}>
-                        <p style={{fontWeight: 'bold', color: '#666'}}>Question {index + 1} of {totalQuestions}</p>
-                        {q.type === 'tradeoff' && (
-                            <LikertStatement 
-                                statement={{ id: q.questionId, text: q.text }} 
-                                currentAnswer={answers[q.questionId]} 
-                                onAnswerSelect={handleAnswerSelect} 
-                            />
-                        )}
-                        {q.type === 'mcq' && (
-                            <McqStatement 
-                                question={q}
-                                currentAnswer={answers[q.questionId]}
-                                onAnswerSelect={handleAnswerSelect}
-                            />
-                        )}
-                    </div>
-                ))}
-            </main>
-            <footer style={{ position: 'sticky', bottom: 0, backgroundColor: 'rgba(255, 255, 255, 0.95)', padding: '20px', borderTop: '1px solid #eee', textAlign: 'center', boxShadow: '0 -2px 10px rgba(0,0,0,0.1)' }}>
-                <p style={{ margin: '0 0 15px 0', fontWeight: 'bold' }}>Progress: {answeredQuestions} / {totalQuestions}</p>
+        {assessmentState === 'error' && <div><h2>An Error Occurred</h2><p>Could not load or process the assessment.</p></div>}
+        
+        {assessmentState === 'evaluating' && <div><h2>Analyzing Your Submission...</h2><p>Your detailed report is being generated. This may take a moment.</p></div>}
 
-                {process.env.NEXT_PUBLIC_SHOW_DEV_TOOLS === 'true' && (
-                    <button onClick={handleAutoAnswer} style={{ padding: '10px 20px', cursor: 'pointer', backgroundColor: '#ffc107', color: 'black', border: 'none', borderRadius: '5px', marginRight: '15px' }}>
-                        Dev: Auto-Answer All
+        {assessmentState === 'in_progress' && (
+            <>
+                <header style={{ textAlign: 'center', borderBottom: '1px solid #eee', paddingBottom: '20px', marginBottom: '30px' }}>
+                    <Image src="/logo.png" alt="Company Logo" width={180} height={72} />
+                    <h1 style={{ color: '#003366', marginTop: '10px' }}>The Marketing Influence Quotient™</h1>
+                    <p style={{ fontStyle: 'italic', color: '#555' }}>Please respond to the following statements and questions.</p>
+                </header>
+                <main>
+                    {questions.map((q, index) => (
+                        <div key={q.questionId} style={{ marginBottom: '40px' }}>
+                            <p style={{fontWeight: 'bold', color: '#666'}}>Question {index + 1} of {totalQuestions}</p>
+                            {q.type === 'tradeoff' && (
+                                <LikertStatement 
+                                    statement={{ id: q.questionId, text: q.text }} 
+                                    currentAnswer={answers[q.questionId]} 
+                                    onAnswerSelect={handleAnswerSelect} 
+                                />
+                            )}
+                            {q.type === 'mcq' && (
+                                <McqStatement 
+                                    question={q}
+                                    currentAnswer={answers[q.questionId]}
+                                    onAnswerSelect={handleAnswerSelect}
+                                />
+                            )}
+                        </div>
+                    ))}
+                </main>
+                <footer style={{ position: 'sticky', bottom: 0, backgroundColor: 'rgba(255, 255, 255, 0.95)', padding: '20px', borderTop: '1px solid #eee', textAlign: 'center', boxShadow: '0 -2px 10px rgba(0,0,0,0.1)' }}>
+                    <p style={{ margin: '0 0 15px 0', fontWeight: 'bold' }}>Progress: {answeredQuestions} / {totalQuestions}</p>
+
+                    {process.env.NEXT_PUBLIC_SHOW_DEV_TOOLS === 'true' && (
+                        <button onClick={handleAutoAnswer} style={{ padding: '10px 20px', cursor: 'pointer', backgroundColor: '#ffc107', color: 'black', border: 'none', borderRadius: '5px', marginRight: '15px' }}>
+                            Dev: Auto-Answer All
+                        </button>
+                    )}
+
+                    <button onClick={handleSubmit} disabled={isSubmitDisabled} style={{ padding: '15px 40px', fontSize: '1.2em', fontWeight: 'bold', cursor: isSubmitDisabled ? 'not-allowed' : 'pointer', backgroundColor: isSubmitDisabled ? '#ccc' : '#28a745', color: 'white', border: 'none', borderRadius: '5px', opacity: isSubmitDisabled ? 0.6 : 1 }}>
+                        Submit for Analysis
                     </button>
-                )}
-
-                <button onClick={handleSubmit} disabled={isSubmitDisabled} style={{ padding: '15px 40px', fontSize: '1.2em', fontWeight: 'bold', cursor: isSubmitDisabled ? 'not-allowed' : 'pointer', backgroundColor: isSubmitDisabled ? '#ccc' : '#28a745', color: 'white', border: 'none', borderRadius: '5px', opacity: isSubmitDisabled ? 0.6 : 1 }}>
-                    Submit for Analysis
-                </button>
-            </footer>
-        </>
-    )}
-    {assessmentState === 'loading' && <div>Loading Assessment...</div>}
-    {assessmentState === 'error' && <div><h2>An Error Occurred</h2><p>Could not load or process the assessment.</p></div>}
-    {assessmentState === 'evaluating' && <div><h2>Analyzing Your Submission...</h2><p>Your detailed report is being generated. This may take a moment.</p></div>}
-</div>
-
-        {footerHtml && <div dangerouslySetInnerHTML={{ __html: footerHtml }} />}
-    </>
+                </footer>
+            </>
+        )}
+    </div>
 );
 };
 
