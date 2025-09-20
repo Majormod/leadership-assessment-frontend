@@ -1,4 +1,4 @@
-// components/MarketingReport.js new 111 //
+// components/MarketingReport.js new Edit PDF Location //
 
 import React, { useState, useRef, useEffect } from 'react';
 import { pdf } from '@react-pdf/renderer';
@@ -410,8 +410,8 @@ const handleDownloadPdf = async () => {
 
         // Step 3: Fetch your cover PDFs
         const [frontCoverBuffer, backCoverBuffer] = await Promise.all([
-            fetch('/Front-Cover.pdf').then(res => res.arrayBuffer()),
-            fetch('/Back-Cover.pdf').then(res => res.arrayBuffer())
+            fetch('/pdf/Front-Cover.pdf').then(res => res.arrayBuffer()),
+            fetch('/pdf/Back-Cover.pdf').then(res => res.arrayBuffer())
         ]);
 
         // Step 4: Create a new PDF and load all source PDFs
