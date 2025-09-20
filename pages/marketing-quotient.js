@@ -204,7 +204,7 @@ return (
         {assessmentState === 'in_progress' && (
             <>
                 <header style={{ textAlign: 'center', borderBottom: '1px solid #eee', paddingBottom: '20px', marginBottom: '30px' }}>
-                    <Image src="/logo.png" alt="Company Logo" width={180} height={72} />
+                    <Image src="/marketing-quotient/logo.png" alt="Company Logo" width={180} height={72} />
                     <h1 style={{ color: '#003366', marginTop: '10px' }}>The Marketing Influence Quotient™</h1>
                     <p style={{ fontStyle: 'italic', color: '#555' }}>Please respond to the following statements and questions.</p>
                 </header>
