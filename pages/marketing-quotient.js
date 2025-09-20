@@ -9,7 +9,7 @@ import McqStatement from '../components/McqStatement';       // We'll create thi
 import { marketingAnswerKey } from '../data/marketing-answer-key';
 import MarketingReport from '../components/MarketingReport'; // The final report component
 
-const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
+const apiUrl = process.env.NEXT_PUBLIC_API_URL || '';
 
 // ADD THIS HELPER FUNCTION
 const sanitizeAnalysisText = (text) => {
