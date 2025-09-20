@@ -90,7 +90,7 @@ const MarketingQuotientPage = () => {
         if (!jobId) return;
         const intervalId = setInterval(async () => {
             try {
-                const res = await fetch(`${apiUrl}/api/marketing/status/${jobId}`);
+                const res = await fetch(`${apiUrl}/marketing/status/${jobId}`);
                 if (!res.ok) throw new Error(`Status check failed`);
                 const data = await res.json();
 
@@ -147,7 +147,7 @@ const handleAutoAnswer = () => {
         console.log("Submitting this payload to the backend:", JSON.stringify(answers, null, 2));
 
         try {
-            const res = await fetch(`${apiUrl}/api/marketing/submit`, {
+            const res = await fetch(`${apiUrl}/marketing/submit`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ answers })
