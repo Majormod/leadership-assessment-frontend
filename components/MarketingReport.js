@@ -411,9 +411,9 @@ const handleDownloadPdf = async () => {
 
         // Step 3: Fetch your cover PDFs
         const [frontCoverBuffer, backCoverBuffer] = await Promise.all([
-            fetch('http://34.195.233.179/pdf/Front-Cover.pdf').then(res => res.arrayBuffer()),
-            fetch('http://34.195.233.179/pdf/Back-Cover.pdf').then(res => res.arrayBuffer())
-        ]);
+    fetch('/pdf/Front-Cover.pdf').then(res => res.arrayBuffer()),
+    fetch('/pdf/Back-Cover.pdf').then(res => res.arrayBuffer())
+]);
 
         // Step 4: Create a new PDF and load all source PDFs
         const finalPdfDoc = await PDFDocument.create();
