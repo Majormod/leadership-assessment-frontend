@@ -58,7 +58,6 @@ const Layout = ({ children, headerHtml, footerHtml, bodyClassName }) => {
 <Script src="/assets/js/vendor/swiper.js" strategy="lazyOnload" />
 <Script src="/assets/js/vendor/jquery-appear.js" strategy="lazyOnload" />
 <Script src="/assets/js/vendor/odometer.js" strategy="lazyOnload" />
-{/* <Script src="/assets/js/vendor/backtotop.js" strategy="lazyOnload" /> */}
 <Script src="/assets/js/vendor/isotop.js" strategy="lazyOnload" />
 <Script src="/assets/js/vendor/imageloaded.js" strategy="lazyOnload" />
 <Script src="/assets/js/vendor/wow.js" strategy="lazyOnload" />
@@ -69,11 +68,8 @@ const Layout = ({ children, headerHtml, footerHtml, bodyClassName }) => {
 <Script src="/assets/js/vendor/bootstrap-select.min.js" strategy="lazyOnload" />
 <Script src="/assets/js/vendor/jquery-ui.js" strategy="lazyOnload" />
 <Script src="/assets/js/vendor/magnify-popup.min.js" strategy="lazyOnload" />
-<Script src="/assets/js/vendor/paralax-scroll.js" strategy="lazyOnload" />
-<Script src="/assets/js/vendor/paralax.min.js" strategy="lazyOnload" />
 <Script src="/assets/js/vendor/countdown.js" strategy="lazyOnload" />
 <Script src="/assets/js/vendor/plyr.js" strategy="lazyOnload" />
-<Script src="/assets/js/vendor/jodit.min.js" strategy="lazyOnload" />
 <Script src="/assets/js/vendor/Sortable.min.js" strategy="lazyOnload" />
 {/* Note: The slick.min.js path from your file was invalid, so I've omitted it. */}
 
