@@ -44,7 +44,6 @@ const Layout = ({ children, headerHtml, footerHtml, bodyClassName }) => {
             </div>
 
             {/* All JS files from your original file. Strategy 'beforeInteractive' is important for jQuery */}
-            // In components/Layout.js
 
 {/* ... The rest of your Layout component is above this ... */}
 
