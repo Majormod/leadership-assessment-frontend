@@ -58,7 +58,7 @@ const Layout = ({ children, headerHtml, footerHtml, bodyClassName }) => {
 <Script src="/assets/js/vendor/swiper.js" strategy="lazyOnload" />
 <Script src="/assets/js/vendor/jquery-appear.js" strategy="lazyOnload" />
 <Script src="/assets/js/vendor/odometer.js" strategy="lazyOnload" />
-<Script src="/assets/js/vendor/backtotop.js" strategy="lazyOnload" />
+{/* <Script src="/assets/js/vendor/backtotop.js" strategy="lazyOnload" /> */}
 <Script src="/assets/js/vendor/isotop.js" strategy="lazyOnload" />
 <Script src="/assets/js/vendor/imageloaded.js" strategy="lazyOnload" />
 <Script src="/assets/js/vendor/wow.js" strategy="lazyOnload" />
