@@ -1,3 +1,13 @@
+/* This sets the background for the whole page to white, removing the black bars */
+body, html, #__next {
+    background: #ffffff;
+}
+#__next{
+      max-width: 100%; /* Make it full width */
+    margin: 0;       /* Remove any horizontal centering */
+    padding: 40px;   /* Add some space so content isn't stuck to the edges */
+}
+}
 /* 28-06-25 */
 :root {
   --background: #ffffff;
