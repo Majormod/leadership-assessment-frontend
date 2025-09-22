@@ -17,10 +17,27 @@ function MyApp({ Component, pageProps }) {
 // This function fetches the layout for EVERY page in the app.
 // Note: This disables Automatic Static Optimization, which is fine for your app.
 MyApp.getInitialProps = async (context) => {
-    // We are on the server, so we fetch from the internal localhost address of the LMS
-    const res = await fetch('http://localhost:5000/api/layout');
-    const layoutData = await res.json();
-    return { pageProps: layoutData };
+    try {
+        const layoutUrl = 'http://localhost:5000/api/layout';
+        console.log(`[DEBUG] Attempting to fetch layout from: ${layoutUrl}`);
+
+        const res = await fetch(layoutUrl);
+        console.log(`[DEBUG] Fetch response status: ${res.status}`);
+
+        if (!res.ok) {
+            // If response is not 200-299, throw an error to be caught below
+            throw new Error(`Failed to fetch with status: ${res.status}`);
+        }
+
+        const layoutData = await res.json();
+        console.log('[DEBUG] Successfully fetched and parsed layout JSON.');
+        return { pageProps: layoutData };
+
+    } catch (error) {
+        console.error('[ERROR] CRITICAL: Failed to fetch layout data.', error);
+        // On failure, return empty props so the app doesn't crash
+        return { pageProps: {} }; 
+    }
 };
 
 
