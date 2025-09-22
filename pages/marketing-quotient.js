@@ -246,6 +246,7 @@ return (
         )}
     </div>
 );
+
 };
 
 export default MarketingQuotientPage;
