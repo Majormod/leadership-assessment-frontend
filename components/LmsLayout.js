@@ -1653,8 +1653,8 @@ useEffect(() => {
 <Script src="/assets/js/vendor/sal.js" strategy="lazyOnload" />
 
 {/* Your other scripts */}
-<Script src="/assets/js/main.js" strategy="lazyOnload" />
-<Script src="/assets/js/nav.js" strategy="lazyOnload" />
+<Script src="/assets/js/main.js" />
+<Script src="/assets/js/nav.js" />
         </>
     );
 };
