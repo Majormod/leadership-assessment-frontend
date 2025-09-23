@@ -7,16 +7,20 @@ import { useEffect } from 'react';
 const LmsLayout = ({ children }) => {
     // In components/LmsLayout.js
 
-useEffect(() => {
-    // Check if our new, safe re-initialize function exists
-    if (typeof window.reinitializeLmsHeader === 'function') {
+// In components/LmsLayout.js
 
-        // A tiny delay ensures React has finished rendering everything
-        // before we try to make it interactive.
-        setTimeout(() => {
-            window.reinitializeLmsHeader();
-        }, 100); // 100 milliseconds is imperceptible to the user
-    }
+useEffect(() => {
+    // A short delay to ensure React has rendered everything.
+    setTimeout(() => {
+        // Call the function from nav.js to set up the user profile
+        if (typeof window.setupLmsNavigation === 'function') {
+            window.setupLmsNavigation();
+        }
+        // Call the function from main.js to set up search and cart
+        if (typeof window.reinitializeLmsInteractivity === 'function') {
+            window.reinitializeLmsInteractivity();
+        }
+    }, 100); // 100ms delay
 }, []);
 
     return (
