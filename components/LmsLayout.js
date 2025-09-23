@@ -1645,16 +1645,51 @@ useEffect(() => {
                 {/* ▲▲▲ END OF FOOTER HTML ▲▲▲ */}
             </div>
 
-            {/* In components/LmsLayout.js */}
+{/* ... all your component JSX and footer HTML is above this ... */}
+
+{/* ============================================ */}
+{/* JS Scripts                   */}
+{/* ============================================ */}
+{/* Scripts that must run before the page is interactive */}
+<Script src="/assets/js/vendor/modernizr.min.js" strategy="beforeInteractive" />
 <Script src="/assets/js/vendor/jquery.js" strategy="beforeInteractive" />
-<Script src="/assets/js/vendor/bootstrap.min.js" strategy="lazyOnload" />
 
-{/* ADD THIS LINE */}
+{/* Main dependencies that can load after the page is interactive */}
+<Script src="/assets/js/vendor/bootstrap.min.js" strategy="afterInteractive" />
 <Script src="/assets/js/vendor/sal.js" strategy="afterInteractive" />
+<Script src="/assets/js/vendor/swiper.js" strategy="afterInteractive" />
+<Script src="/assets/js/vendor/js.cookie.js" strategy="afterInteractive" />
 
-{/* Your other scripts */}
+{/* Non-critical UI plugins that can load when the browser is idle */}
+<Script src="/assets/js/vendor/jquery.style.switcher.js" strategy="lazyOnload" />
+<Script src="/assets/js/vendor/jquery-appear.js" strategy="lazyOnload" />
+<Script src="/assets/js/vendor/odometer.js" strategy="lazyOnload" />
+<Script src="/assets/js/vendor/backtotop.js" strategy="lazyOnload" />
+<Script src="/assets/js/vendor/isotop.js" strategy="lazyOnload" />
+<Script src="/assets/js/vendor/imageloaded.js" strategy="lazyOnload" />
+<Script src="/assets/js/vendor/wow.js" strategy="lazyOnload" />
+<Script src="/assets/js/vendor/waypoint.min.js" strategy="lazyOnload" />
+<Script src="/assets/js/vendor/easypie.js" strategy="lazyOnload" />
+<Script src="/assets/js/vendor/text-type.js" strategy="lazyOnload" />
+<Script src="/assets/js/vendor/jquery-one-page-nav.js" strategy="lazyOnload" />
+<Script src="/assets/js/vendor/bootstrap-select.min.js" strategy="lazyOnload" />
+<Script src="/assets/js/vendor/jquery-ui.js" strategy="lazyOnload" />
+<Script src="/assets/js/vendor/magnify-popup.min.js" strategy="lazyOnload" />
+<Script src="/assets/js/vendor/paralax-scroll.js" strategy="lazyOnload" />
+<Script src="/assets/js/vendor/paralax.min.js" strategy="lazyOnload" />
+<Script src="/assets/js/vendor/countdown.js" strategy="lazyOnload" />
+<Script src="/assets/js/vendor/plyr.js" strategy="lazyOnload" />
+<Script src="/assets/js/vendor/jodit.min.js" strategy="lazyOnload" />
+<Script src="/assets/js/vendor/Sortable.min.js" strategy="lazyOnload" />
+<Script src="/assets/js/vendor/slick.min.js" strategy="lazyOnload" />
+
+{/* Your main application scripts that run last */}
 <Script src="/assets/js/main.js" />
+<Script src="/assets/js/ecommerce.js" />
 <Script src="/assets/js/nav.js" />
+
+
+
         </>
     );
 };
