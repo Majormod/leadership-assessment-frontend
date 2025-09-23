@@ -1,4 +1,4 @@
-// In components/LmsLayout.js // 6:08pm 23 Sept
+// In components/LmsLayout.js // 23 Sept
 
 import Head from 'next/head';
 import Script from 'next/script';
@@ -1650,7 +1650,7 @@ useEffect(() => {
 <Script src="/assets/js/vendor/bootstrap.min.js" strategy="lazyOnload" />
 
 {/* ADD THIS LINE */}
-<Script src="/assets/js/vendor/sal.js" strategy="lazyOnload" />
+<Script src="/assets/js/vendor/sal.js" strategy="afterInteractive" />
 
 {/* Your other scripts */}
 <Script src="/assets/js/main.js" />
@@ -1661,4 +1661,4 @@ useEffect(() => {
 
 export default LmsLayout;
 
-// In components/LmsLayout.js // 6:08pm 23 Sept
+// In components/LmsLayout.js // 23 Sept
