@@ -12,15 +12,11 @@ const LmsLayout = ({ children }) => {
 useEffect(() => {
     // A short delay to ensure React has rendered everything.
     setTimeout(() => {
-        // Call the function from nav.js to set up the user profile
-        if (typeof window.setupLmsNavigation === 'function') {
-            window.setupLmsNavigation();
+        // We are ONLY calling our new, safe function.
+        if (typeof window.reinitializeLmsHeader === 'function') {
+            window.reinitializeLmsHeader();
         }
-        // Call the function from main.js to set up search and cart
-        if (typeof window.reinitializeLmsInteractivity === 'function') {
-            window.reinitializeLmsInteractivity();
-        }
-    }, 100); // 100ms delay
+    }, 100); 
 }, []);
 
     return (
