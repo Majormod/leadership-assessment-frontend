@@ -16,7 +16,7 @@ import MarketingReport from '../components/MarketingReport';
 
 // --- FIX 3: Added missing variables (UPDATE THESE VALUES) ---
 // This should point to your AI backend, likely an environment variable
-const marketingAnswerKey = { /* Paste your answer key object here */ };
+import { marketingAnswerKey } from '../data/marketing-answer-key';
 
 const apiUrl = process.env.NEXT_PUBLIC_API_URL || '';
 
