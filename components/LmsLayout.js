@@ -1649,11 +1649,16 @@ useEffect(() => {
                 {/* ▲▲▲ END OF FOOTER HTML ▲▲▲ */}
             </div>
 
-            {/* All JS files needed for the header/footer to be interactive */}
-            <Script src="/assets/js/vendor/jquery.js" strategy="beforeInteractive" />
-            <Script src="/assets/js/vendor/bootstrap.min.js" strategy="lazyOnload" />
-            <Script src="/assets/js/main.js" strategy="lazyOnload" />
-            <Script src="/assets/js/nav.js" strategy="lazyOnload" />
+            {/* In components/LmsLayout.js */}
+<Script src="/assets/js/vendor/jquery.js" strategy="beforeInteractive" />
+<Script src="/assets/js/vendor/bootstrap.min.js" strategy="lazyOnload" />
+
+{/* ADD THIS LINE */}
+<Script src="/assets/js/vendor/sal.js" strategy="lazyOnload" />
+
+{/* Your other scripts */}
+<Script src="/assets/js/main.js" strategy="lazyOnload" />
+<Script src="/assets/js/nav.js" strategy="lazyOnload" />
         </>
     );
 };
