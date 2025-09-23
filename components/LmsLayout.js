@@ -1666,8 +1666,8 @@ useEffect(() => {
 <Script src="/assets/js/vendor/odometer.js" strategy="lazyOnload" />
 <Script src="/assets/js/vendor/backtotop.js" strategy="lazyOnload" />
 <Script src="/assets/js/vendor/isotop.js" strategy="lazyOnload" />
-<Script src="/assets/js/vendor/imageloaded.js" strategy="lazyOnload" />
-<Script src="/assets/js/vendor/wow.js" strategy="lazyOnload" />
+<Script src="/assets/js/vendor/imageloaded.js" strategy="afterInteractive" />
+<Script src="/assets/js/vendor/wow.js" strategy="afterInteractive" />
 <Script src="/assets/js/vendor/waypoint.min.js" strategy="lazyOnload" />
 <Script src="/assets/js/vendor/easypie.js" strategy="lazyOnload" />
 <Script src="/assets/js/vendor/text-type.js" strategy="lazyOnload" />
