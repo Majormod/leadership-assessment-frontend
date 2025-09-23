@@ -16,7 +16,6 @@ import MarketingReport from '../components/MarketingReport';
 
 // --- FIX 3: Added missing variables (UPDATE THESE VALUES) ---
 // This should point to your AI backend, likely an environment variable
-const apiUrl = '/api'; // Use a relative path so Nginx can proxy it
 const marketingAnswerKey = { /* Paste your answer key object here */ };
 
 const apiUrl = process.env.NEXT_PUBLIC_API_URL || '';
