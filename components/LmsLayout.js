@@ -1,4 +1,4 @@
-// In components/LmsLayout.js // 5:49pm 23 Sept
+// In components/LmsLayout.js // 6:08pm 23 Sept
 
 import Head from 'next/head';
 import Script from 'next/script';
@@ -1661,4 +1661,4 @@ useEffect(() => {
 
 export default LmsLayout;
 
-// In components/LmsLayout.js // 5:49pm 23 Sept
+// In components/LmsLayout.js // 6:08pm 23 Sept
