@@ -228,5 +228,3 @@ const MarketingQuotientPage = () => {
 };
 
 export default MarketingQuotientPage;
-
-export default MarketingQuotientPage;
