@@ -1,37 +1,64 @@
-// In components/LmsLayout.js - REVISED AND CORRECTED
+// In components/LmsLayout.js
 
 import Head from 'next/head';
 import Script from 'next/script';
-import { useEffect, useState, useCallback } from 'react'; // Import useState and useCallback
+import { useEffect } from 'react'; // Only useEffect is needed now
 
 const LmsLayout = ({ children }) => {
-    // State to track if our main theme script is loaded
-    const [isMainScriptLoaded, setMainScriptLoaded] = useState(false);
 
-    // This is the function that initializes all the header interactivity.
-    // We wrap it in useCallback to prevent it from being recreated on every render.
-    const initializeHeader = useCallback(() => {
-        // Double-check that our global functions exist before calling them.
-        if (typeof window.reinitializeLmsHeader === 'function') {
-            console.log("Calling window.reinitializeLmsHeader()...");
-            window.reinitializeLmsHeader();
-        } else {
-            console.error("Error: window.reinitializeLmsHeader is not available.");
-        }
-    }, []); // Empty dependency array means this function is created only once.
+    // REMOVE the useState, useCallback, and old useEffect hooks.
+    // ADD this new useEffect in their place.
 
-    // This useEffect hook will run ONLY when isMainScriptLoaded becomes true.
     useEffect(() => {
-        if (isMainScriptLoaded) {
-            // A small delay can still be helpful to ensure the DOM is fully painted.
-            const timer = setTimeout(() => {
-                initializeHeader();
-            }, 100); // 100ms is a safe bet.
+        // Helper function to load a script and return a promise
+        const loadScript = (src) => {
+            return new Promise((resolve, reject) => {
+                const script = document.createElement('script');
+                script.src = src;
+                script.onload = () => resolve(script);
+                script.onerror = () => reject(new Error(`Script load error for ${src}`));
+                document.body.appendChild(script);
+            });
+        };
 
-            // Cleanup function to clear the timeout if the component unmounts.
-            return () => clearTimeout(timer);
-        }
-    }, [isMainScriptLoaded, initializeHeader]); // Dependency array
+        // This function loads scripts in a guaranteed order
+        const loadCriticalScripts = async () => {
+            try {
+                console.log("Loading critical scripts sequentially...");
+                // 1. Load jQuery and wait for it to be ready
+                await loadScript('/assets/js/vendor/jquery.js');
+                console.log("✅ jQuery loaded.");
+
+                // 2. Load jQuery-dependent plugins
+                await loadScript('/assets/js/vendor/bootstrap.min.js');
+                await loadScript('/assets/js/vendor/wow.js');
+                await loadScript('/assets/js/vendor/paralax.min.js');
+                console.log("✅ jQuery plugins loaded.");
+
+                // 3. Now that dependencies are met, load main.js
+                await loadScript('/assets/js/main.js');
+                console.log("✅ main.js loaded. window.reinitializeLmsHeader should now exist.");
+
+                // 4. Load nav.js, which is also called by the reinitialize function
+                await loadScript('/assets/js/nav.js');
+                console.log("✅ nav.js loaded.");
+                
+                // 5. Everything is loaded in order. Now, call the master initialization function.
+                if (typeof window.reinitializeLmsHeader === 'function') {
+                    console.log("All critical scripts ready. Calling reinitializeLmsHeader()...");
+                    window.reinitializeLmsHeader();
+                } else {
+                    console.error("CRITICAL ERROR: reinitializeLmsHeader() is still not available after loading main.js.");
+                }
+
+            } catch (error) {
+                console.error("Failed to load critical scripts:", error);
+            }
+        };
+
+        loadCriticalScripts();
+
+    }, []); // The empty array ensures this runs only once when the component mounts.
 
     return (
         <>
@@ -1657,36 +1684,20 @@ const LmsLayout = ({ children }) => {
                 {/* ▲▲▲ END OF FOOTER HTML ▲▲▲ */}
             </div>
 
-            {/* ============================================ */}
-            {/* JS Scripts                                   */}
-            {/* ============================================ */}
+{/* ============================================ */}
+{/* JS Scripts                                 */}
+{/* ============================================ */}
 
-            {/* --- STEP 1: LOAD CRITICAL DEPENDENCIES FIRST --- */}
-            {/* jQuery is essential. Load it first and wait for it to be ready. */}
-            <Script src="/assets/js/vendor/jquery.js" strategy="afterInteractive" />
+{/* The critical scripts are now loaded in the useEffect hook above. */}
+{/* This section should now only contain the remaining non-critical scripts. */}
 
-            {/* These scripts depend on jQuery but are needed by main.js. */}
-            <Script src="/assets/js/vendor/bootstrap.min.js" strategy="afterInteractive" />
-            <Script src="/assets/js/vendor/wow.js" strategy="afterInteractive" />
-            <Script src="/assets/js/vendor/paralax.min.js" strategy="afterInteractive" />
-
-
-            {/* --- STEP 2: LOAD YOUR MAIN THEME SCRIPT --- */}
-            {/* This is the most important script. We add an onLoad handler here. */}
-            {/* When it finishes loading, we set our state variable to true. */}
-            <Script
-                src="/assets/js/main.js"
-                strategy="afterInteractive"
-                onLoad={() => {
-                    console.log("main.js has loaded successfully.");
-                    setMainScriptLoaded(true);
-                }}
-            />
+<Script src="/assets/js/ecommerce.js" strategy="lazyOnload" />
+<Script src="/assets/js/vendor/modernizr.min.js" strategy="lazyOnload" />
+<Script src="/assets/js/vendor/sal.js" strategy="lazyOnload" />
 
             {/* --- STEP 3: LOAD THE REST OF THE SCRIPTS --- */}
             {/* These can load after the main interactive elements are working. */}
             <Script src="/assets/js/nav.js" strategy="lazyOnload" />
-            <Script src="/assets/js/ecommerce.js" strategy="lazyOnload" />
             <Script src="/assets/js/vendor/modernizr.min.js" strategy="lazyOnload" />
             <Script src="/assets/js/vendor/sal.js" strategy="lazyOnload" />
             <Script src="/assets/js/vendor/swiper.js" strategy="lazyOnload" />
