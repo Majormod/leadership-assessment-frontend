@@ -15,6 +15,8 @@ const LmsLayout = ({ children }) => {
 
 // In components/LmsLayout.js -> useEffect
 
+// In components/LmsLayout.js -> useEffect
+
 useEffect(() => {
     // Helper function remains the same...
     const loadScript = (src) => {
@@ -40,11 +42,14 @@ useEffect(() => {
             await loadScript('/assets/js/vendor/wow.js');
             await loadScript('/assets/js/vendor/sal.js');
             await loadScript('/assets/js/vendor/paralax.min.js');
-            await loadScript('/assets/js/vendor/swiper.js'); // <-- ADD THIS
+            await loadScript('/assets/js/vendor/swiper.js');
             await loadScript('/assets/js/vendor/bootstrap-select.min.js');
             await loadScript('/assets/js/vendor/js.cookie.js');
             await loadScript('/assets/js/vendor/jquery.style.switcher.js');
-            // We are temporarily REMOVING paralax-scroll.js as it's non-critical and causes an initial error.
+            
+            // -- FIX FOR LATEST ERRORS --
+            await loadScript('/assets/js/vendor/jquery-one-page-nav.js'); // For .onePageNav()
+            await loadScript('/assets/js/vendor/imageloaded.js');         // For .imagesLoaded()
 
             console.log("✅ All vendor scripts loaded.");
 
@@ -1713,11 +1718,9 @@ useEffect(() => {
             <Script src="/assets/js/vendor/odometer.js" strategy="lazyOnload" />
             <Script src="/assets/js/vendor/backtotop.js" strategy="lazyOnload" />
             <Script src="/assets/js/vendor/isotop.js" strategy="lazyOnload" />
-            <Script src="/assets/js/vendor/imageloaded.js" strategy="lazyOnload" />
             <Script src="/assets/js/vendor/waypoint.min.js" strategy="lazyOnload" />
             <Script src="/assets/js/vendor/easypie.js" strategy="lazyOnload" />
             <Script src="/assets/js/vendor/text-type.js" strategy="lazyOnload" />
-            <Script src="/assets/js/vendor/jquery-one-page-nav.js" strategy="lazyOnload" />
             <Script src="/assets/js/vendor/jquery-ui.js" strategy="lazyOnload" />
             <Script src="/assets/js/vendor/magnify-popup.min.js" strategy="lazyOnload" />
             <Script src="/assets/js/vendor/countdown.js" strategy="lazyOnload" />
