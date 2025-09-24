@@ -1709,7 +1709,6 @@ const LmsLayout = ({ children }) => {
             <Script src="/assets/js/vendor/plyr.js" strategy="lazyOnload" />
             <Script src="/assets/js/vendor/jodit.min.js" strategy="lazyOnload" />
             <Script src="/assets/js/vendor/Sortable.min.js" strategy="lazyOnload" />
-            <Script src="/assets/js/vendor/slick.min.js" strategy="lazyOnload" />
         </>
     );
 };
