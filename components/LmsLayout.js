@@ -21,6 +21,8 @@ const LmsLayout = ({ children }) => {
 
 // In components/LmsLayout.js
 
+// In components/LmsLayout.js
+
 useEffect(() => {
     // Helper function remains the same...
     const loadScript = (src) => {
@@ -42,6 +44,7 @@ useEffect(() => {
             await loadScript('/assets/js/vendor/jquery.js');
 
             // 2. Load ALL potential jQuery plugins and UI libraries needed by main.js
+            // This is the final, comprehensive list.
             await loadScript('/assets/js/vendor/bootstrap.min.js');
             await loadScript('/assets/js/vendor/wow.js');
             await loadScript('/assets/js/vendor/sal.js');
@@ -54,7 +57,14 @@ useEffect(() => {
             await loadScript('/assets/js/vendor/imageloaded.js');
             await loadScript('/assets/js/vendor/jquery-ui.js');
             await loadScript('/assets/js/vendor/isotop.js');
-            // REMOVED: slick.min.js which was causing a 404 error.
+            await loadScript('/assets/js/vendor/odometer.js);
+            await loadScript('/assets/js/vendor/jquery-appear.js');
+            await loadScript('/assets/js/vendor/backtotop.js');
+            await loadScript('/assets/js/vendor/waypoint.min.js');
+            await loadScript('/assets/js/vendor/easypie.js');
+            await loadScript('/assets/js/vendor/text-type.js');
+            await loadScript('/assets/js/vendor/countdown.js');
+            await loadScript('/assets/js/vendor/magnify-popup.min.js'); // For .magnificPopup()
 
             console.log("✅ All vendor scripts loaded comprehensively.");
 
@@ -1713,20 +1723,10 @@ useEffect(() => {
 {/* This section should now only contain the remaining non-critical scripts. */}
 
 <Script src="/assets/js/ecommerce.js" strategy="lazyOnload" />
-<Script src="/assets/js/vendor/modernizr.min.js" strategy="lazyOnload" />
 
             {/* --- STEP 3: LOAD THE REST OF THE SCRIPTS --- */}
             {/* These can load after the main interactive elements are working. */}
-            <Script src="/assets/js/nav.js" strategy="lazyOnload" />
             <Script src="/assets/js/vendor/modernizr.min.js" strategy="lazyOnload" />
-            <Script src="/assets/js/vendor/jquery-appear.js" strategy="lazyOnload" />
-            <Script src="/assets/js/vendor/odometer.js" strategy="lazyOnload" />
-            <Script src="/assets/js/vendor/backtotop.js" strategy="lazyOnload" />
-            <Script src="/assets/js/vendor/waypoint.min.js" strategy="lazyOnload" />
-            <Script src="/assets/js/vendor/easypie.js" strategy="lazyOnload" />
-            <Script src="/assets/js/vendor/text-type.js" strategy="lazyOnload" />
-            <Script src="/assets/js/vendor/magnify-popup.min.js" strategy="lazyOnload" />
-            <Script src="/assets/js/vendor/countdown.js" strategy="lazyOnload" />
             <Script src="/assets/js/vendor/plyr.js" strategy="lazyOnload" />
             <Script src="/assets/js/vendor/jodit.min.js" strategy="lazyOnload" />
             <Script src="/assets/js/vendor/Sortable.min.js" strategy="lazyOnload" />
