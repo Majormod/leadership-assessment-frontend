@@ -1250,7 +1250,7 @@ useEffect(() => {
                             </div>
                         </div>
                         {/* End Side Vav */}
-                        <a className="rbt-close_side_menu" href="javascript:void(0);" />
+                        <a className="rbt-close_side_menu" href="#" onClick={(e) => e.preventDefault()} />
                     </header>
                     {/* Mobile Menu Section */}
                     <div className="popup-mobile-menu">
