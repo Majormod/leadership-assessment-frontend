@@ -13,13 +13,14 @@ const LmsLayout = ({ children }) => {
 
 // In components/LmsLayout.js -> useEffect
 
+// In components/LmsLayout.js -> useEffect
+
 useEffect(() => {
     // Helper function remains the same...
     const loadScript = (src) => {
         return new Promise((resolve, reject) => {
             if (document.querySelector(`script[src="${src}"]`)) {
-                resolve();
-                return;
+                resolve(); return;
             }
             const script = document.createElement('script');
             script.src = src;
@@ -31,7 +32,6 @@ useEffect(() => {
 
     const loadCriticalScripts = async () => {
         try {
-            console.log("Loading ALL critical scripts sequentially...");
             // 1. Load jQuery
             await loadScript('/assets/js/vendor/jquery.js');
 
@@ -39,25 +39,22 @@ useEffect(() => {
             await loadScript('/assets/js/vendor/bootstrap.min.js');
             await loadScript('/assets/js/vendor/wow.js');
             await loadScript('/assets/js/vendor/sal.js');
+            await loadScript('/assets/js/vendor/paralax.min.js');
+            await loadScript('/assets/js/vendor/swiper.js'); // <-- ADD THIS
+            await loadScript('/assets/js/vendor/bootstrap-select.min.js');
             await loadScript('/assets/js/vendor/js.cookie.js');
             await loadScript('/assets/js/vendor/jquery.style.switcher.js');
-
-            // -- FIX FOR NEW ERRORS --
-            await loadScript('/assets/js/vendor/paralax.min.js'); // Dependency for the next script
-            await loadScript('/assets/js/vendor/paralax-scroll.js'); // Fixes ParallaxScroll.init error
-            await loadScript('/assets/js/vendor/bootstrap-select.min.js'); // Fixes .selectpicker() error
+            // We are temporarily REMOVING paralax-scroll.js as it's non-critical and causes an initial error.
 
             console.log("✅ All vendor scripts loaded.");
 
-            // 3. Load main.js
+            // 3. Load main.js and nav.js
             await loadScript('/assets/js/main.js');
             console.log("✅ main.js loaded.");
-            
-            // 4. Load nav.js
             await loadScript('/assets/js/nav.js');
             console.log("✅ nav.js loaded.");
-
-            // 5. Initialize
+            
+            // 4. Initialize
             if (typeof window.reinitializeLmsHeader === 'function') {
                 console.log("SUCCESS: Calling reinitializeLmsHeader()...");
                 window.reinitializeLmsHeader();
@@ -1712,7 +1709,6 @@ useEffect(() => {
             {/* These can load after the main interactive elements are working. */}
             <Script src="/assets/js/nav.js" strategy="lazyOnload" />
             <Script src="/assets/js/vendor/modernizr.min.js" strategy="lazyOnload" />
-            <Script src="/assets/js/vendor/swiper.js" strategy="lazyOnload" />
             <Script src="/assets/js/vendor/jquery-appear.js" strategy="lazyOnload" />
             <Script src="/assets/js/vendor/odometer.js" strategy="lazyOnload" />
             <Script src="/assets/js/vendor/backtotop.js" strategy="lazyOnload" />
