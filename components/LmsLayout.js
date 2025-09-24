@@ -65,6 +65,7 @@ useEffect(() => {
             await loadScript('/assets/js/vendor/text-type.js');
             await loadScript('/assets/js/vendor/countdown.js');
             await loadScript('/assets/js/vendor/magnify-popup.min.js'); // <-- THE CORRECTED FILENAME
+            await loadScript('/assets/js/vendor/plyr.js');
 
             console.log("✅ All vendor scripts loaded comprehensively.");
 
@@ -1723,7 +1724,6 @@ useEffect(() => {
             {/* --- STEP 3: LOAD THE REST OF THE SCRIPTS --- */}
             {/* These can load after the main interactive elements are working. */}
             <Script src="/assets/js/vendor/modernizr.min.js" strategy="lazyOnload" />
-            <Script src="/assets/js/vendor/plyr.js" strategy="lazyOnload" />
             <Script src="/assets/js/vendor/jodit.min.js" strategy="lazyOnload" />
             <Script src="/assets/js/vendor/Sortable.min.js" strategy="lazyOnload" />
         </>
