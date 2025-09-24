@@ -19,6 +19,8 @@ const LmsLayout = ({ children }) => {
 
 // In components/LmsLayout.js
 
+// In components/LmsLayout.js
+
 useEffect(() => {
     // Helper function remains the same...
     const loadScript = (src) => {
@@ -50,11 +52,9 @@ useEffect(() => {
             await loadScript('/assets/js/vendor/jquery.style.switcher.js');
             await loadScript('/assets/js/vendor/jquery-one-page-nav.js');
             await loadScript('/assets/js/vendor/imageloaded.js');
-            
-            // -- FINAL DEPENDENCIES BASED ON NEW ERRORS --
-            await loadScript('/assets/js/vendor/jquery-ui.js'); // For .slider()
-            await loadScript('/assets/js/vendor/isotop.js');     // For .isotope()
-            await loadScript('/assets/js/vendor/slick.min.js');  // Often used with carousels
+            await loadScript('/assets/js/vendor/jquery-ui.js');
+            await loadScript('/assets/js/vendor/isotop.js');
+            // REMOVED: slick.min.js which was causing a 404 error.
 
             console.log("✅ All vendor scripts loaded comprehensively.");
 
