@@ -11,10 +11,12 @@ const LmsLayout = ({ children }) => {
 
 // In components/LmsLayout.js -> useEffect
 
+// In components/LmsLayout.js -> useEffect
+
 useEffect(() => {
+    // Helper function remains the same...
     const loadScript = (src) => {
         return new Promise((resolve, reject) => {
-            // Check if the script already exists to prevent re-loading
             if (document.querySelector(`script[src="${src}"]`)) {
                 resolve();
                 return;
@@ -29,18 +31,25 @@ useEffect(() => {
 
     const loadCriticalScripts = async () => {
         try {
-            console.log("Loading critical scripts sequentially...");
+            console.log("Loading ALL critical scripts sequentially...");
             // 1. Load jQuery
             await loadScript('/assets/js/vendor/jquery.js');
-            
-            // 2. Load jQuery-dependent plugins AND other critical dependencies for main.js
+
+            // 2. Load ALL known vendor plugins that main.js depends on
             await loadScript('/assets/js/vendor/bootstrap.min.js');
             await loadScript('/assets/js/vendor/wow.js');
-            await loadScript('/assets/js/vendor/paralax.min.js');
-            await loadScript('/assets/js/vendor/sal.js'); // <-- ADD THIS LINE
-            console.log("✅ Critical vendor scripts loaded.");
+            await loadScript('/assets/js/vendor/sal.js');
+            await loadScript('/assets/js/vendor/js.cookie.js');
+            await loadScript('/assets/js/vendor/jquery.style.switcher.js');
 
-            // 3. Load main.js now that ALL its dependencies are met
+            // -- FIX FOR NEW ERRORS --
+            await loadScript('/assets/js/vendor/paralax.min.js'); // Dependency for the next script
+            await loadScript('/assets/js/vendor/paralax-scroll.js'); // Fixes ParallaxScroll.init error
+            await loadScript('/assets/js/vendor/bootstrap-select.min.js'); // Fixes .selectpicker() error
+
+            console.log("✅ All vendor scripts loaded.");
+
+            // 3. Load main.js
             await loadScript('/assets/js/main.js');
             console.log("✅ main.js loaded.");
             
@@ -48,14 +57,9 @@ useEffect(() => {
             await loadScript('/assets/js/nav.js');
             console.log("✅ nav.js loaded.");
 
-            // 5. Load the final, non-critical but error-causing scripts
-            await loadScript('/assets/js/vendor/js.cookie.js'); // <-- ADD THIS (dependency)
-            await loadScript('/assets/js/vendor/jquery.style.switcher.js'); // <-- ADD THIS (dependent)
-            console.log("✅ Ancillary scripts loaded.");
-
-            // 6. Everything is ready. Initialize.
+            // 5. Initialize
             if (typeof window.reinitializeLmsHeader === 'function') {
-                console.log("All scripts ready. Calling reinitializeLmsHeader()...");
+                console.log("SUCCESS: Calling reinitializeLmsHeader()...");
                 window.reinitializeLmsHeader();
             } else {
                 console.error("CRITICAL ERROR: reinitializeLmsHeader() is still not available.");
@@ -1718,10 +1722,8 @@ useEffect(() => {
             <Script src="/assets/js/vendor/easypie.js" strategy="lazyOnload" />
             <Script src="/assets/js/vendor/text-type.js" strategy="lazyOnload" />
             <Script src="/assets/js/vendor/jquery-one-page-nav.js" strategy="lazyOnload" />
-            <Script src="/assets/js/vendor/bootstrap-select.min.js" strategy="lazyOnload" />
             <Script src="/assets/js/vendor/jquery-ui.js" strategy="lazyOnload" />
             <Script src="/assets/js/vendor/magnify-popup.min.js" strategy="lazyOnload" />
-            <Script src="/assets/js/vendor/paralax-scroll.js" strategy="lazyOnload" />
             <Script src="/assets/js/vendor/countdown.js" strategy="lazyOnload" />
             <Script src="/assets/js/vendor/plyr.js" strategy="lazyOnload" />
             <Script src="/assets/js/vendor/jodit.min.js" strategy="lazyOnload" />
