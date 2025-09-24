@@ -25,9 +25,8 @@ const LmsLayout = ({ children }) => {
 
 // In components/LmsLayout.js
 
-// In components/LmsLayout.js
-
 useEffect(() => {
+    // ... loadScript helper function ...
     const loadScript = (src) => {
         return new Promise((resolve, reject) => {
             if (document.querySelector(`script[src="${src}"]`)) {
@@ -41,13 +40,11 @@ useEffect(() => {
         });
     };
 
-    const initializeHeader = async () => {
+    const loadCriticalScripts = async () => {
         try {
-            // STEP 1: LOAD ALL SCRIPTS IN A GUARANTEED ORDER
             await loadScript('/assets/js/vendor/jquery.js');
-            await loadScript('/assets/js/vendor/modernizr.min.js'); // Added
             
-            // Load all vendor plugins
+            // The comprehensive list of all vendor scripts
             await loadScript('/assets/js/vendor/bootstrap.min.js');
             await loadScript('/assets/js/vendor/wow.js');
             await loadScript('/assets/js/vendor/sal.js');
@@ -67,32 +64,27 @@ useEffect(() => {
             await loadScript('/assets/js/vendor/easypie.js');
             await loadScript('/assets/js/vendor/text-type.js');
             await loadScript('/assets/js/vendor/countdown.js');
-            await loadScript('/assets/js/vendor/magnific-popup.min.js');
+            await loadScript('/assets/js/vendor/magnify-popup.min.js'); // <-- THE CORRECTED FILENAME
             await loadScript('/assets/js/vendor/plyr.js');
-            await loadScript('/assets/js/vendor/jodit.min.js');    // Added
-            await loadScript('/assets/js/vendor/Sortable.min.js'); // Added
 
-            console.log("✅ All vendor scripts loaded.");
+            console.log("✅ All vendor scripts loaded comprehensively.");
 
-            // Load your custom application scripts last
             await loadScript('/assets/js/main.js');
             await loadScript('/assets/js/nav.js');
-            await loadScript('/assets/js/ecommerce.js'); // Added
-
-            // STEP 2: RUN THE INITIALIZERS
+            
             if (typeof window.reinitializeLmsHeader === 'function') {
                 console.log("SUCCESS: Calling reinitializeLmsHeader()...");
                 window.reinitializeLmsHeader();
             } else {
-                console.error("CRITICAL ERROR: reinitializeLmsHeader function not found.");
+                console.error("CRITICAL ERROR: reinitializeLmsHeader() is still not available.");
             }
 
         } catch (error) {
-            console.error("Header initialization failed:", error);
+            console.error("Failed to load critical scripts:", error);
         }
     };
 
-    initializeHeader();
+    loadCriticalScripts();
 
 }, []);
 
@@ -1727,7 +1719,13 @@ useEffect(() => {
 {/* The critical scripts are now loaded in the useEffect hook above. */}
 {/* This section should now only contain the remaining non-critical scripts. */}
 
+<Script src="/assets/js/ecommerce.js" strategy="lazyOnload" />
 
+            {/* --- STEP 3: LOAD THE REST OF THE SCRIPTS --- */}
+            {/* These can load after the main interactive elements are working. */}
+            <Script src="/assets/js/vendor/modernizr.min.js" strategy="lazyOnload" />
+            <Script src="/assets/js/vendor/jodit.min.js" strategy="lazyOnload" />
+            <Script src="/assets/js/vendor/Sortable.min.js" strategy="lazyOnload" />
         </>
     );
 };
