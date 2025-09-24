@@ -17,6 +17,8 @@ const LmsLayout = ({ children }) => {
 
 // In components/LmsLayout.js -> useEffect
 
+// In components/LmsLayout.js
+
 useEffect(() => {
     // Helper function remains the same...
     const loadScript = (src) => {
@@ -34,10 +36,10 @@ useEffect(() => {
 
     const loadCriticalScripts = async () => {
         try {
-            // 1. Load jQuery
+            // 1. Load jQuery - The foundation
             await loadScript('/assets/js/vendor/jquery.js');
 
-            // 2. Load ALL known vendor plugins that main.js depends on
+            // 2. Load ALL potential jQuery plugins and UI libraries needed by main.js
             await loadScript('/assets/js/vendor/bootstrap.min.js');
             await loadScript('/assets/js/vendor/wow.js');
             await loadScript('/assets/js/vendor/sal.js');
@@ -46,25 +48,28 @@ useEffect(() => {
             await loadScript('/assets/js/vendor/bootstrap-select.min.js');
             await loadScript('/assets/js/vendor/js.cookie.js');
             await loadScript('/assets/js/vendor/jquery.style.switcher.js');
+            await loadScript('/assets/js/vendor/jquery-one-page-nav.js');
+            await loadScript('/assets/js/vendor/imageloaded.js');
             
-            // -- FIX FOR LATEST ERRORS --
-            await loadScript('/assets/js/vendor/jquery-one-page-nav.js'); // For .onePageNav()
-            await loadScript('/assets/js/vendor/imageloaded.js');         // For .imagesLoaded()
+            // -- FINAL DEPENDENCIES BASED ON NEW ERRORS --
+            await loadScript('/assets/js/vendor/jquery-ui.js'); // For .slider()
+            await loadScript('/assets/js/vendor/isotop.js');     // For .isotope()
+            await loadScript('/assets/js/vendor/slick.min.js');  // Often used with carousels
 
-            console.log("✅ All vendor scripts loaded.");
+            console.log("✅ All vendor scripts loaded comprehensively.");
 
-            // 3. Load main.js and nav.js
+            // 3. Load the main application scripts
             await loadScript('/assets/js/main.js');
             console.log("✅ main.js loaded.");
             await loadScript('/assets/js/nav.js');
             console.log("✅ nav.js loaded.");
             
-            // 4. Initialize
+            // 4. Initialize the application UI
             if (typeof window.reinitializeLmsHeader === 'function') {
                 console.log("SUCCESS: Calling reinitializeLmsHeader()...");
                 window.reinitializeLmsHeader();
             } else {
-                console.error("CRITICAL ERROR: reinitializeLmsHeader() is still not available.");
+                console.error("CRITICAL ERROR: reinitializeLmsHeader() is still not available after loading all dependencies.");
             }
 
         } catch (error) {
@@ -1717,11 +1722,9 @@ useEffect(() => {
             <Script src="/assets/js/vendor/jquery-appear.js" strategy="lazyOnload" />
             <Script src="/assets/js/vendor/odometer.js" strategy="lazyOnload" />
             <Script src="/assets/js/vendor/backtotop.js" strategy="lazyOnload" />
-            <Script src="/assets/js/vendor/isotop.js" strategy="lazyOnload" />
             <Script src="/assets/js/vendor/waypoint.min.js" strategy="lazyOnload" />
             <Script src="/assets/js/vendor/easypie.js" strategy="lazyOnload" />
             <Script src="/assets/js/vendor/text-type.js" strategy="lazyOnload" />
-            <Script src="/assets/js/vendor/jquery-ui.js" strategy="lazyOnload" />
             <Script src="/assets/js/vendor/magnify-popup.min.js" strategy="lazyOnload" />
             <Script src="/assets/js/vendor/countdown.js" strategy="lazyOnload" />
             <Script src="/assets/js/vendor/plyr.js" strategy="lazyOnload" />
