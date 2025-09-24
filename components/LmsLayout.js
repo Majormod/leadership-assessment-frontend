@@ -64,7 +64,7 @@ useEffect(() => {
             await loadScript('/assets/js/vendor/easypie.js');
             await loadScript('/assets/js/vendor/text-type.js');
             await loadScript('/assets/js/vendor/countdown.js');
-            await loadScript('/assets/js/vendor/magnify-popup.min.js'); // For .magnificPopup()
+            await loadScript('/assets/js/vendor/magnific-popup.min.js'); // For .magnificPopup()
 
             console.log("✅ All vendor scripts loaded comprehensively.");
 
