@@ -23,8 +23,10 @@ const LmsLayout = ({ children }) => {
 
 // In components/LmsLayout.js
 
+// In components/LmsLayout.js
+
 useEffect(() => {
-    // Helper function remains the same...
+    // ... loadScript helper function ...
     const loadScript = (src) => {
         return new Promise((resolve, reject) => {
             if (document.querySelector(`script[src="${src}"]`)) {
@@ -40,11 +42,9 @@ useEffect(() => {
 
     const loadCriticalScripts = async () => {
         try {
-            // 1. Load jQuery - The foundation
             await loadScript('/assets/js/vendor/jquery.js');
-
-            // 2. Load ALL potential jQuery plugins and UI libraries needed by main.js
-            // This is the final, comprehensive list.
+            
+            // The comprehensive list of all vendor scripts
             await loadScript('/assets/js/vendor/bootstrap.min.js');
             await loadScript('/assets/js/vendor/wow.js');
             await loadScript('/assets/js/vendor/sal.js');
@@ -57,29 +57,25 @@ useEffect(() => {
             await loadScript('/assets/js/vendor/imageloaded.js');
             await loadScript('/assets/js/vendor/jquery-ui.js');
             await loadScript('/assets/js/vendor/isotop.js');
-            await loadScript('/assets/js/vendor/odometer.js);
             await loadScript('/assets/js/vendor/jquery-appear.js');
+            await loadScript('/assets/js/vendor/odometer.js');
             await loadScript('/assets/js/vendor/backtotop.js');
             await loadScript('/assets/js/vendor/waypoint.min.js');
             await loadScript('/assets/js/vendor/easypie.js');
             await loadScript('/assets/js/vendor/text-type.js');
             await loadScript('/assets/js/vendor/countdown.js');
-            await loadScript('/assets/js/vendor/magnific-popup.min.js'); // For .magnificPopup()
+            await loadScript('/assets/js/vendor/magnific-popup.min.js'); // <-- THE CORRECTED FILENAME
 
             console.log("✅ All vendor scripts loaded comprehensively.");
 
-            // 3. Load the main application scripts
             await loadScript('/assets/js/main.js');
-            console.log("✅ main.js loaded.");
             await loadScript('/assets/js/nav.js');
-            console.log("✅ nav.js loaded.");
             
-            // 4. Initialize the application UI
             if (typeof window.reinitializeLmsHeader === 'function') {
                 console.log("SUCCESS: Calling reinitializeLmsHeader()...");
                 window.reinitializeLmsHeader();
             } else {
-                console.error("CRITICAL ERROR: reinitializeLmsHeader() is still not available after loading all dependencies.");
+                console.error("CRITICAL ERROR: reinitializeLmsHeader() is still not available.");
             }
 
         } catch (error) {
