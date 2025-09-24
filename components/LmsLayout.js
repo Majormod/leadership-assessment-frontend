@@ -67,7 +67,7 @@ useEffect(() => {
             await loadScript('/assets/js/vendor/easypie.js');
             await loadScript('/assets/js/vendor/text-type.js');
             await loadScript('/assets/js/vendor/countdown.js');
-            await loadScript('/assets/js/vendor/magnific-popup.min.js');
+            await loadScript('/assets/js/vendor/magnify-popup.min.js');
             await loadScript('/assets/js/vendor/plyr.js');
             await loadScript('/assets/js/vendor/jodit.min.js');    // Added
             await loadScript('/assets/js/vendor/Sortable.min.js'); // Added
