@@ -1539,7 +1539,7 @@ useEffect(() => {
                         </div>
                     </div>
                     {/* End Side Vav */}
-                    <a className="close_side_menu" href="javascript:void(0);" />
+                    <a className="close_side_menu" href="#" onClick={(e) => e.preventDefault()} />
                 </>
 
                 {/* ▲▲▲ END OF HEADER HTML ▲▲▲ */}
