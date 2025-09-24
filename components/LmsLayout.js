@@ -9,56 +9,66 @@ const LmsLayout = ({ children }) => {
     // REMOVE the useState, useCallback, and old useEffect hooks.
     // ADD this new useEffect in their place.
 
-    useEffect(() => {
-        // Helper function to load a script and return a promise
-        const loadScript = (src) => {
-            return new Promise((resolve, reject) => {
-                const script = document.createElement('script');
-                script.src = src;
-                script.onload = () => resolve(script);
-                script.onerror = () => reject(new Error(`Script load error for ${src}`));
-                document.body.appendChild(script);
-            });
-        };
+// In components/LmsLayout.js -> useEffect
 
-        // This function loads scripts in a guaranteed order
-        const loadCriticalScripts = async () => {
-            try {
-                console.log("Loading critical scripts sequentially...");
-                // 1. Load jQuery and wait for it to be ready
-                await loadScript('/assets/js/vendor/jquery.js');
-                console.log("✅ jQuery loaded.");
-
-                // 2. Load jQuery-dependent plugins
-                await loadScript('/assets/js/vendor/bootstrap.min.js');
-                await loadScript('/assets/js/vendor/wow.js');
-                await loadScript('/assets/js/vendor/paralax.min.js');
-                console.log("✅ jQuery plugins loaded.");
-
-                // 3. Now that dependencies are met, load main.js
-                await loadScript('/assets/js/main.js');
-                console.log("✅ main.js loaded. window.reinitializeLmsHeader should now exist.");
-
-                // 4. Load nav.js, which is also called by the reinitialize function
-                await loadScript('/assets/js/nav.js');
-                console.log("✅ nav.js loaded.");
-                
-                // 5. Everything is loaded in order. Now, call the master initialization function.
-                if (typeof window.reinitializeLmsHeader === 'function') {
-                    console.log("All critical scripts ready. Calling reinitializeLmsHeader()...");
-                    window.reinitializeLmsHeader();
-                } else {
-                    console.error("CRITICAL ERROR: reinitializeLmsHeader() is still not available after loading main.js.");
-                }
-
-            } catch (error) {
-                console.error("Failed to load critical scripts:", error);
+useEffect(() => {
+    const loadScript = (src) => {
+        return new Promise((resolve, reject) => {
+            // Check if the script already exists to prevent re-loading
+            if (document.querySelector(`script[src="${src}"]`)) {
+                resolve();
+                return;
             }
-        };
+            const script = document.createElement('script');
+            script.src = src;
+            script.onload = () => resolve(script);
+            script.onerror = () => reject(new Error(`Script load error for ${src}`));
+            document.body.appendChild(script);
+        });
+    };
 
-        loadCriticalScripts();
+    const loadCriticalScripts = async () => {
+        try {
+            console.log("Loading critical scripts sequentially...");
+            // 1. Load jQuery
+            await loadScript('/assets/js/vendor/jquery.js');
+            
+            // 2. Load jQuery-dependent plugins AND other critical dependencies for main.js
+            await loadScript('/assets/js/vendor/bootstrap.min.js');
+            await loadScript('/assets/js/vendor/wow.js');
+            await loadScript('/assets/js/vendor/paralax.min.js');
+            await loadScript('/assets/js/vendor/sal.js'); // <-- ADD THIS LINE
+            console.log("✅ Critical vendor scripts loaded.");
 
-    }, []); // The empty array ensures this runs only once when the component mounts.
+            // 3. Load main.js now that ALL its dependencies are met
+            await loadScript('/assets/js/main.js');
+            console.log("✅ main.js loaded.");
+            
+            // 4. Load nav.js
+            await loadScript('/assets/js/nav.js');
+            console.log("✅ nav.js loaded.");
+
+            // 5. Load the final, non-critical but error-causing scripts
+            await loadScript('/assets/js/vendor/js.cookie.js'); // <-- ADD THIS (dependency)
+            await loadScript('/assets/js/vendor/jquery.style.switcher.js'); // <-- ADD THIS (dependent)
+            console.log("✅ Ancillary scripts loaded.");
+
+            // 6. Everything is ready. Initialize.
+            if (typeof window.reinitializeLmsHeader === 'function') {
+                console.log("All scripts ready. Calling reinitializeLmsHeader()...");
+                window.reinitializeLmsHeader();
+            } else {
+                console.error("CRITICAL ERROR: reinitializeLmsHeader() is still not available.");
+            }
+
+        } catch (error) {
+            console.error("Failed to load critical scripts:", error);
+        }
+    };
+
+    loadCriticalScripts();
+
+}, []);
 
     return (
         <>
@@ -1693,16 +1703,12 @@ const LmsLayout = ({ children }) => {
 
 <Script src="/assets/js/ecommerce.js" strategy="lazyOnload" />
 <Script src="/assets/js/vendor/modernizr.min.js" strategy="lazyOnload" />
-<Script src="/assets/js/vendor/sal.js" strategy="lazyOnload" />
 
             {/* --- STEP 3: LOAD THE REST OF THE SCRIPTS --- */}
             {/* These can load after the main interactive elements are working. */}
             <Script src="/assets/js/nav.js" strategy="lazyOnload" />
             <Script src="/assets/js/vendor/modernizr.min.js" strategy="lazyOnload" />
-            <Script src="/assets/js/vendor/sal.js" strategy="lazyOnload" />
             <Script src="/assets/js/vendor/swiper.js" strategy="lazyOnload" />
-            <Script src="/assets/js/vendor/js.cookie.js" strategy="lazyOnload" />
-            <Script src="/assets/js/vendor/jquery.style.switcher.js" strategy="lazyOnload" />
             <Script src="/assets/js/vendor/jquery-appear.js" strategy="lazyOnload" />
             <Script src="/assets/js/vendor/odometer.js" strategy="lazyOnload" />
             <Script src="/assets/js/vendor/backtotop.js" strategy="lazyOnload" />
