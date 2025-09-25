@@ -27,6 +27,8 @@ const LmsLayout = ({ children }) => {
 
 // In components/LmsLayout.js
 
+// In components/LmsLayout.js
+
 useEffect(() => {
     const loadScript = (src) => {
         return new Promise((resolve, reject) => {
@@ -41,13 +43,11 @@ useEffect(() => {
         });
     };
 
-    const initializeHeader = async () => {
+    const initializeApp = async () => {
         try {
-            // STEP 1: LOAD ALL SCRIPTS IN A GUARANTEED ORDER
+            // STEP 1: Load all of your original scripts.
             await loadScript('/assets/js/vendor/jquery.js');
-            await loadScript('/assets/js/vendor/modernizr.min.js'); // Added
-            
-            // Load all vendor plugins
+            await loadScript('/assets/js/vendor/modernizr.min.js');
             await loadScript('/assets/js/vendor/bootstrap.min.js');
             await loadScript('/assets/js/vendor/wow.js');
             await loadScript('/assets/js/vendor/sal.js');
@@ -69,30 +69,27 @@ useEffect(() => {
             await loadScript('/assets/js/vendor/countdown.js');
             await loadScript('/assets/js/vendor/magnify-popup.min.js');
             await loadScript('/assets/js/vendor/plyr.js');
-            await loadScript('/assets/js/vendor/jodit.min.js');    // Added
-            await loadScript('/assets/js/vendor/Sortable.min.js'); // Added
-
-            console.log("✅ All vendor scripts loaded.");
-
-            // Load your custom application scripts last
+            await loadScript('/assets/js/vendor/jodit.min.js');
+            await loadScript('/assets/js/vendor/Sortable.min.js');
+            
+            // Load your custom scripts last
             await loadScript('/assets/js/main.js');
             await loadScript('/assets/js/nav.js');
-            await loadScript('/assets/js/ecommerce.js'); // Added
+            await loadScript('/assets/js/ecommerce.js');
 
-            // STEP 2: RUN THE INITIALIZERS
-            if (typeof window.reinitializeLmsHeader === 'function') {
-                console.log("SUCCESS: Calling reinitializeLmsHeader()...");
-                window.reinitializeLmsHeader();
-            } else {
-                console.error("CRITICAL ERROR: reinitializeLmsHeader function not found.");
-            }
+            // STEP 2: Manually fire the "start" signal your original scripts are waiting for.
+            console.log("All scripts loaded. Manually firing DOMContentLoaded to trigger original scripts...");
+            window.document.dispatchEvent(new Event("DOMContentLoaded", {
+                bubbles: true,
+                cancelable: true
+            }));
 
         } catch (error) {
             console.error("Header initialization failed:", error);
         }
     };
 
-    initializeHeader();
+    initializeApp();
 
 }, []);
 
