@@ -49,3 +49,20 @@ a {
     color-scheme: dark;
   }
 }
+
+/* === LMS Boundary Reset (Add this to the end of the file) === */
+.lms-layout-boundary,
+.lms-layout-boundary * {
+  /* Reset properties to let the theme's CSS take control */
+  margin: revert;
+  padding: revert;
+  font-family: revert;
+  color: revert;
+  background: revert;
+  box-sizing: revert;
+}
+
+.lms-layout-boundary a {
+  /* Specifically reset link styles */
+  text-decoration: revert;
+}
