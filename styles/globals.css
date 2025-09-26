@@ -49,3 +49,13 @@ a {
     color-scheme: dark;
   }
 }
+/* === LMS Boundary Surgical Reset (Add this to the end) === */
+.lms-layout-boundary * {
+  /* Only revert the properties causing a conflict */
+  font-family: revert;
+  color: revert;
+}
+
+.lms-layout-boundary a {
+  text-decoration: revert;
+}
