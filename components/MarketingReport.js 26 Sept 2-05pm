@@ -773,12 +773,10 @@ return (
                             {staticData.subTopics.map((topic, i) => <li key={i} style={{marginBottom: '10px'}}>{topic}</li>)}
                         </ul>
                     </div>
-                    {/*
                     <SubTitle>{staticData.judgedByTitle}</SubTitle>
                     <ul style={{paddingLeft: '20px'}}>
                         {staticData.judgedByItems && staticData.judgedByItems.map((item, i) => <li key={i} style={{marginBottom: '10px'}}>{item}</li>)}
                     </ul>
-                    */}
                     <SubTitle>{staticData.mattersWhyTitle}</SubTitle>
                     <p style={{lineHeight: 1.7}}>{staticData.mattersWhyText}</p>
                 </>

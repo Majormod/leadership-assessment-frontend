@@ -234,8 +234,10 @@ const MarketingPDFDocument = ({ report, logoDataURI, chartImages }) => {
                     <>
                         <Text style={styles.h3}>{staticData.subTopicsTitle}</Text>
                         {staticData.subTopics.map((topic, i) => <Bullet key={i}>{topic}</Bullet>)}
+                        {/*
                         <Text style={styles.h3}>{staticData.judgedByTitle}</Text>
                         {staticData.judgedByItems.map((item, i) => <Bullet key={i}>{item}</Bullet>)}
+                        */}
                         <Text style={styles.h3}>{staticData.mattersWhyTitle}</Text>
                         <Text style={styles.text}>{staticData.mattersWhyText}</Text>
                     </>
