@@ -84,6 +84,11 @@ useEffect(() => {
                 cancelable: true
             }));
 
+            // ADD THIS LINE as a failsafe to ensure the search courses always load
+            if (typeof window.populateSearchDropdownCourses === 'function') {
+                window.populateSearchDropdownCourses();
+            }
+            
         } catch (error) {
             console.error("Header initialization failed:", error);
         }
