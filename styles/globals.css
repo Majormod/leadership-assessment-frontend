@@ -57,3 +57,17 @@ a {
 .lms-layout-boundary a {
   text-decoration: none; /* This explicitly removes the unwanted underlines */
 }
+/* === LMS Boundary Final Polish (Add this to the end) === */
+
+.lms-layout-boundary {
+  /* This line disables the global color variable for this section */
+  --foreground: unset;
+}
+
+.lms-layout-boundary * {
+  font-family: revert; /* This is working correctly, so we keep it */
+}
+
+.lms-layout-boundary a {
+  text-decoration: none; /* This explicitly removes the unwanted underlines */
+}
