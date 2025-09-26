@@ -71,3 +71,7 @@ a {
 .lms-layout-boundary a {
   text-decoration: none; /* This explicitly removes the unwanted underlines */
 }
+/* === Final Paragraph Color Override (Add this to the end) === */
+.lms-layout-boundary p {
+  color: #333333 !important; /* A standard dark text color */
+}
