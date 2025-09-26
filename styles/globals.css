@@ -72,6 +72,9 @@ a {
   text-decoration: none; /* This explicitly removes the unwanted underlines */
 }
 /* === Final Paragraph Color Override (Add this to the end) === */
-.lms-layout-boundary p {
+/* === Final Text Color Override === */
+.lms-layout-boundary p,
+.lms-layout-boundary .rbt-price,
+.lms-layout-boundary .current-price {
   color: #333333 !important; /* A standard dark text color */
 }
