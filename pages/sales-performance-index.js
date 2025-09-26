@@ -22,7 +22,7 @@ const SalesPerformanceIndexPage = () => {
     useEffect(() => {
         const fetchQuestions = async () => {
             try {
-                const res = await fetch(`${apiUrl}/api/sales/questions`);
+                const res = await fetch(`${apiUrl}/sales/questions`);
                 if (!res.ok) throw new Error(`Server responded with ${res.status}`);
                 const salesQuestions = await res.json();
                 

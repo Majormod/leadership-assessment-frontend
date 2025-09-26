@@ -2,7 +2,7 @@ import React from 'react';
 import { Chart, registerables } from 'chart.js';
 Chart.register(...registerables);
 
-// This component is adapted from your MarketingRadarChart for the Sales Performance Index.
+// This component is adapted from your MarketingRadarChart for the Sales Performance Index
 const SalesRadarChart = ({ data }) => {
     const chartRef = React.useRef(null);
     // Re-using the theme colors for consistency
