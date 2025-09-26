@@ -114,6 +114,7 @@ useEffect(() => {
             <div className="rbt-header-sticky">
                 {/* ▼▼▼ YOUR HEADER HTML (No changes needed here) ▼▼▼ */}
                 <>
+                <div className="lms-layout-boundary">
                     {/* Start Header Area */}
                     <header className="rbt-header rbt-header-10">
                         <div className="rbt-sticky-placeholder" />
@@ -1542,8 +1543,8 @@ useEffect(() => {
                     </div>
                     {/* End Side Vav */}
                     <a className="close_side_menu" href="#" onClick={(e) => e.preventDefault()} />
+                </div>
                 </>
-
                 {/* ▲▲▲ END OF HEADER HTML ▲▲▲ */}
 
                 <main className="rbt-main-wrapper">
@@ -1553,6 +1554,7 @@ useEffect(() => {
                 {/* ▼▼▼ YOUR FOOTER HTML (No changes needed here) ▼▼▼ */}
                 <>
                     {/* Start Footer aera */}
+                    <div className="lms-layout-boundary">                       
                     <footer className="rbt-footer footer-style-1">
                         <div className="footer-top">
                             <div className="container">
@@ -1717,6 +1719,7 @@ useEffect(() => {
                         </div>
                     </div>
                     {/* End Copyright Area  */}
+                    </div>
                 </>
 
                 {/* ▲▲▲ END OF FOOTER HTML ▲▲▲ */}
