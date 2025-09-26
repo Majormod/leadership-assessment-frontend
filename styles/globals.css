@@ -52,7 +52,6 @@ a {
 /* === LMS Boundary Final Polish (Add this to the end) === */
 .lms-layout-boundary * {
   font-family: revert; /* This is working correctly, so we keep it */
-  color: inherit;      /* This is a gentler reset that respects theme colors */
 }
 
 .lms-layout-boundary a {
