@@ -49,13 +49,12 @@ a {
     color-scheme: dark;
   }
 }
-/* === LMS Boundary Surgical Reset (Add this to the end) === */
+/* === LMS Boundary Final Polish (Add this to the end) === */
 .lms-layout-boundary * {
-  /* Only revert the properties causing a conflict */
-  font-family: revert;
-  color: revert;
+  font-family: revert; /* This is working correctly, so we keep it */
+  color: inherit;      /* This is a gentler reset that respects theme colors */
 }
 
 .lms-layout-boundary a {
-  text-decoration: revert;
+  text-decoration: none; /* This explicitly removes the unwanted underlines */
 }
